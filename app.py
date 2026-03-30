@@ -17,6 +17,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import streamlit as st
 
 from analyzer import FRAMEWORK_FILES, ComplianceAnalysis, analyse_document
+from guard import check_request, record_run, require_access_code
 from report_generator import generate_pdf
 
 # ── Constants ────────────────────────────────────────────────────────────────────
@@ -110,6 +111,7 @@ def run_analysis(document_text: str, framework: str):
 
         st.session_state["analyses"] = analyses
         st.session_state.pop("analysis", None)
+        record_run(document_text)
         st.success(f"Analysis complete! ({len(analyses)}/{len(frameworks)} frameworks)")
         render_all_results(analyses)
 
@@ -124,6 +126,7 @@ def run_analysis(document_text: str, framework: str):
                 st.code(traceback.format_exc())
                 st.stop()
 
+        record_run(document_text)
         st.success("Analysis complete!")
         render_results(analysis)
 
@@ -317,6 +320,9 @@ with st.sidebar:
 
 # ── Main area ─────────────────────────────────────────────────────────────────────
 
+if not require_access_code():
+    st.stop()
+
 st.header("Gap Analysis Report")
 
 if uploaded_file is None:
@@ -364,7 +370,11 @@ else:
         )
 
     if analyse_btn:
-        run_analysis(document_text, framework)
+        allowed, reason = check_request(document_text)
+        if not allowed:
+            st.error(reason)
+        else:
+            run_analysis(document_text, framework)
     elif "analyses" in st.session_state and framework == "All Frameworks":
         render_all_results(st.session_state["analyses"])
     elif "analysis" in st.session_state and framework != "All Frameworks":
