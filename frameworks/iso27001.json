@@ -64,10 +64,22 @@
       "keywords": ["physical access", "clear desk", "secure disposal", "environmental controls", "physical security"]
     },
     {
-      "id": "ISO-A8",
-      "name": "Annex A – Technological controls",
-      "description": "Key technical controls: user endpoint devices (A.8.1), privileged access rights (A.8.2), information access restriction (A.8.3), source code management (A.8.4), authentication (A.8.5), capacity management (A.8.6), malware protection (A.8.7), technical vulnerability management/patching (A.8.8), configuration management (A.8.9), network security (A.8.20-8.22), web filtering (A.8.23), encryption (A.8.24), secure development (A.8.25-8.31), data masking (A.8.11), data leakage prevention (A.8.12), backup (A.8.13), redundancy (A.8.14), logging and monitoring (A.8.15-8.16), clock synchronisation (A.8.17), privileged utility programs (A.8.18).",
-      "keywords": ["access control", "encryption", "patching", "vulnerability management", "backup", "logging", "monitoring", "MFA", "network security"]
+      "id": "ISO-A8-Access",
+      "name": "Annex A – Technical controls: Access & Authentication",
+      "description": "Controls covering identity and access management: user endpoint devices (A.8.1), privileged access rights (A.8.2), information access restriction (A.8.3), authentication (A.8.5) including multi-factor authentication (MFA), capacity management (A.8.6), malware protection (A.8.7), web filtering (A.8.23), data masking (A.8.11), data leakage prevention (A.8.12).",
+      "keywords": ["access control", "privileged access", "MFA", "multi-factor authentication", "least privilege", "user provisioning", "identity management", "data leakage prevention"]
+    },
+    {
+      "id": "ISO-A8-Vuln",
+      "name": "Annex A – Technical controls: Vulnerability & Secure Development",
+      "description": "Controls for managing technical vulnerabilities and secure software development: technical vulnerability management and patching (A.8.8), configuration management (A.8.9), source code management (A.8.4), secure development lifecycle (A.8.25-8.31), change management for systems, and use of privileged utility programs (A.8.18).",
+      "keywords": ["patching", "vulnerability management", "configuration management", "secure development", "SDLC", "change management", "source code", "hardening"]
+    },
+    {
+      "id": "ISO-A8-Monitoring",
+      "name": "Annex A – Technical controls: Monitoring, Backup & Encryption",
+      "description": "Controls for detecting incidents and ensuring resilience: logging and monitoring (A.8.15-8.16), clock synchronisation (A.8.17), backup (A.8.13), redundancy and availability (A.8.14), encryption (A.8.24), network security and segmentation (A.8.20-8.22).",
+      "keywords": ["logging", "monitoring", "SIEM", "backup", "encryption", "network security", "network segmentation", "availability", "redundancy", "clock sync"]
     }
   ]
 }

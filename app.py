@@ -4,7 +4,7 @@ app.py – Streamlit frontend for the AI Compliance Checker.
 Run with:
     streamlit run app.py
 
-Requires ANTHROPIC_API_KEY environment variable.
+Requires ANTHROPIC_API_KEY environment variable (or Streamlit Cloud secret).
 """
 
 from __future__ import annotations
@@ -19,8 +19,19 @@ import streamlit as st
 from analyzer import FRAMEWORK_FILES, ComplianceAnalysis, analyse_document
 from report_generator import generate_pdf
 
+# ── Constants ────────────────────────────────────────────────────────────────────
 
-# ── Page config ──────────────────────────────────────────────────────────────────
+MAX_FILE_SIZE_MB = 10
+CHUNK_THRESHOLD  = 14_000  # must match analyzer.MAX_DOC_CHARS
+
+DISCLAIMER = (
+    "**AI-assisted analysis** — results reflect only what is explicitly stated in the "
+    "uploaded document. Controls implemented through verbal processes, separate systems, "
+    "or supporting documentation not included in this upload will not be detected. "
+    "Always validate findings with a qualified compliance professional."
+)
+
+# ── Page config ───────────────────────────────────────────────────────────────────
 
 st.set_page_config(
     page_title="AI Compliance Checker",
@@ -30,20 +41,20 @@ st.set_page_config(
 )
 
 
-# ── Helper functions (must be defined before they are called) ────────────────────
+# ── Helper functions ──────────────────────────────────────────────────────────────
 
-def extract_text(uploaded_file) -> str:
-    """Extract plain text from PDF, DOCX or TXT file."""
-    name = uploaded_file.name.lower()
+@st.cache_data(show_spinner=False)
+def extract_text(file_bytes: bytes, file_name: str) -> str:
+    """Extract plain text from PDF, DOCX or TXT bytes. Cached by content + name."""
+    name = file_name.lower()
 
     if name.endswith(".txt"):
-        return uploaded_file.read().decode("utf-8", errors="replace")
+        return file_bytes.decode("utf-8", errors="replace")
 
     if name.endswith(".pdf"):
         try:
             import fitz  # PyMuPDF
-            pdf_bytes = uploaded_file.read()
-            doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+            doc = fitz.open(stream=file_bytes, filetype="pdf")
             return "\n".join(page.get_text() for page in doc)
         except Exception as e:
             st.error(f"PDF extraction error: {e}")
@@ -52,7 +63,7 @@ def extract_text(uploaded_file) -> str:
     if name.endswith(".docx"):
         try:
             from docx import Document
-            doc = Document(io.BytesIO(uploaded_file.read()))
+            doc = Document(io.BytesIO(file_bytes))
             return "\n".join(para.text for para in doc.paragraphs)
         except Exception as e:
             st.error(f"DOCX extraction error: {e}")
@@ -63,6 +74,15 @@ def extract_text(uploaded_file) -> str:
 
 def run_analysis(document_text: str, framework: str):
     """Call Claude, store result in session_state, then render."""
+    # Guard: API key must be set before any API call
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        st.error(
+            "ANTHROPIC_API_KEY is not set. "
+            "Add it under **Settings → Secrets** in Streamlit Cloud, "
+            "or set it as an environment variable before running locally."
+        )
+        st.stop()
+
     if framework == "All Frameworks":
         frameworks = list(FRAMEWORK_FILES.keys())
         analyses: dict[str, ComplianceAnalysis] = {}
@@ -117,26 +137,29 @@ def render_all_results(analyses: dict):
 
 
 def render_results(analysis: ComplianceAnalysis):
-    """Render the full analysis UI."""
+    """Render the full analysis UI for a single framework."""
+
+    # ── Disclaimer ────────────────────────────────────────────────────────────────
+    st.info(DISCLAIMER)
+
+    # ── Truncation / chunking notice ──────────────────────────────────────────────
+    if getattr(analysis, "truncated", False):
+        st.warning(
+            "This document exceeded 14,000 characters and was analysed in multiple sections. "
+            "Results have been merged automatically — consider splitting the document for highest accuracy."
+        )
+
     # ── Score banner ──────────────────────────────────────────────────────────────
     score = analysis.overall_score
-    if score >= 75:
-        label = "Good"
-    elif score >= 50:
-        label = "Needs Improvement"
-    else:
-        label = "Critical Gaps"
+    label = "Good" if score >= 75 else ("Needs Improvement" if score >= 50 else "Critical Gaps")
 
     col_score, col_meta = st.columns([1, 3])
     with col_score:
-        st.metric(
-            label=f"Compliance Score ({label})",
-            value=f"{score}/100",
-        )
+        st.metric(label=f"Compliance Score ({label})", value=f"{score}/100")
     with col_meta:
-        total = len(analysis.findings)
-        compliant = sum(1 for f in analysis.findings if f.status == "Compliant")
-        partial = sum(1 for f in analysis.findings if f.status == "Partial")
+        total         = len(analysis.findings)
+        compliant     = sum(1 for f in analysis.findings if f.status == "Compliant")
+        partial       = sum(1 for f in analysis.findings if f.status == "Partial")
         non_compliant = sum(1 for f in analysis.findings if f.status == "Non-compliant")
 
         c1, c2, c3, c4 = st.columns(4)
@@ -149,7 +172,7 @@ def render_results(analysis: ComplianceAnalysis):
     with st.expander("Document Summary", expanded=True):
         st.write(analysis.document_summary)
 
-    # ── Key gaps & actions (side by side) ─────────────────────────────────────────
+    # ── Key gaps & priority actions ───────────────────────────────────────────────
     col_gaps, col_actions = st.columns(2)
     with col_gaps:
         st.subheader("Key Gaps")
@@ -169,29 +192,28 @@ def render_results(analysis: ComplianceAnalysis):
         "Filter by status",
         ["Compliant", "Partial", "Non-compliant", "Not Applicable"],
         default=["Partial", "Non-compliant"],
+        key=f"filter_{analysis.framework_name}",
     )
 
-    findings = analysis.findings
-    if status_filter:
-        findings = [f for f in findings if f.status in status_filter]
+    findings = [f for f in analysis.findings if not status_filter or f.status in status_filter]
 
     if not findings:
         st.info("No findings match the selected filter.")
     else:
         for finding in findings:
             status_emoji = {
-                "Compliant": "✅",
-                "Partial": "⚠️",
-                "Non-compliant": "❌",
-                "Not Applicable": "⬜",
+                "Compliant": "✅", "Partial": "⚠️",
+                "Non-compliant": "❌", "Not Applicable": "⬜",
             }.get(finding.status, "")
             risk_emoji = {
                 "High": "🔴", "Medium": "🟠", "Low": "🟡", "N/A": "⚪",
             }.get(finding.risk_level, "")
+            confidence = getattr(finding, "confidence", None)
+            confidence_str = f"  _(confidence: {confidence}%)_" if confidence is not None else ""
 
             with st.expander(
                 f"{status_emoji} [{finding.requirement_id}] {finding.requirement_name} "
-                f"— {finding.status} {risk_emoji} {finding.risk_level}",
+                f"— {finding.status} {risk_emoji} {finding.risk_level}{confidence_str}",
                 expanded=(finding.status == "Non-compliant"),
             ):
                 col_f, col_r = st.columns(2)
@@ -206,28 +228,27 @@ def render_results(analysis: ComplianceAnalysis):
     st.divider()
     st.subheader("Export Report")
 
-    if st.button("Generate PDF Report", type="secondary"):
+    if st.button("Generate PDF Report", type="secondary", key=f"pdf_{analysis.framework_name}"):
         with st.spinner("Generating PDF…"):
             pdf_bytes = generate_pdf(analysis)
-        filename = (
-            f"compliance_report_{analysis.framework_name.replace(' ', '_').lower()}.pdf"
-        )
+        filename = f"compliance_report_{analysis.framework_name.replace(' ', '_').lower()}.pdf"
         st.download_button(
             label="Download PDF",
             data=pdf_bytes,
             file_name=filename,
             mime="application/pdf",
+            key=f"dl_{analysis.framework_name}",
         )
 
 
 def render_landing():
-    """Show instructions on the landing page before any file is uploaded."""
+    """Show instructions before any file is uploaded."""
     st.markdown(
         """
         ### How it works
 
         1. **Upload** your security policy, data protection policy, or any relevant document
-        2. **Select** a compliance framework (GDPR, ISO 27001, or NIST CSF 2.0)
+        2. **Select** a compliance framework — or choose **All Frameworks** to run all three at once
         3. **Click** "Run Compliance Analysis"
         4. Review findings and download the PDF report
 
@@ -243,18 +264,15 @@ def render_landing():
 
         ---
 
-        ### Example output
+        ### Limitations & Scope
 
-        ```
-        Compliance Score: 62/100 – Needs Improvement
+        This tool performs **AI-assisted** document analysis — it reads what is written and
+        compares it to framework requirements. It cannot:
+        - Audit live systems, databases, or infrastructure
+        - Detect verbal policies or undocumented controls
+        - Replace a formal compliance audit or legal review
 
-        Compliant:      5 requirements
-        Partial:        3 requirements
-        Non-compliant:  4 requirements
-
-        Key Gap: No documented breach notification procedure (GDPR Art.33)
-        Priority: Implement a 72-hour breach notification process
-        ```
+        Results should be treated as a **structured starting point**, not a definitive compliance verdict.
         """
     )
 
@@ -270,7 +288,7 @@ with st.sidebar:
     framework = st.selectbox(
         "Compliance framework",
         options=["All Frameworks"] + list(FRAMEWORK_FILES.keys()),
-        help="Choose a framework or select 'All Frameworks' to analyse against all three at once.",
+        help="Choose a single framework or 'All Frameworks' to run all three in parallel.",
     )
 
     st.divider()
@@ -278,7 +296,7 @@ with st.sidebar:
     uploaded_file = st.file_uploader(
         "Upload your policy or security document",
         type=["pdf", "txt", "docx"],
-        help="Upload a PDF, Word document (.docx), or plain text file.",
+        help="PDF, Word (.docx), or plain text. Max 10 MB.",
     )
 
     st.divider()
@@ -288,16 +306,13 @@ with st.sidebar:
         - Extracts text from your document
         - Analyses each requirement
         - Scores compliance (0–100)
-        - Identifies gaps and recommendations
+        - Shows AI confidence per finding
         - Exports a professional PDF report
         """
     )
 
     if not os.environ.get("ANTHROPIC_API_KEY"):
-        st.warning(
-            "ANTHROPIC_API_KEY not set. "
-            "Add it to your environment before running."
-        )
+        st.warning("ANTHROPIC_API_KEY not set. Add it before running.")
 
 
 # ── Main area ─────────────────────────────────────────────────────────────────────
@@ -307,21 +322,42 @@ st.header("Gap Analysis Report")
 if uploaded_file is None:
     render_landing()
 else:
-    document_text = extract_text(uploaded_file)
+    # File size guard
+    if uploaded_file.size > MAX_FILE_SIZE_MB * 1024 * 1024:
+        st.error(
+            f"File too large ({uploaded_file.size / 1024 / 1024:.1f} MB). "
+            f"Maximum size is {MAX_FILE_SIZE_MB} MB."
+        )
+        st.stop()
+
+    # Reset cached results when a different file is uploaded
+    file_key = f"{uploaded_file.name}_{uploaded_file.size}"
+    if st.session_state.get("_file_key") != file_key:
+        st.session_state.pop("analysis", None)
+        st.session_state.pop("analyses", None)
+        st.session_state["_file_key"] = file_key
+
+    # Read file bytes once and pass to cached extractor
+    file_bytes = uploaded_file.read()
+    document_text = extract_text(file_bytes, uploaded_file.name)
 
     if not document_text.strip():
         st.error(
             "Could not extract text from the uploaded file. "
-            "Please try a different file or convert it to .txt."
+            "Make sure the PDF is not scanned/image-only, or try converting to .txt."
         )
         st.stop()
 
     col1, col2 = st.columns([2, 1])
     with col1:
-        st.success(
-            f"Document loaded: **{uploaded_file.name}**  "
-            f"({len(document_text):,} characters)"
-        )
+        base_msg = f"Document loaded: **{uploaded_file.name}** ({len(document_text):,} characters)"
+        if len(document_text) > CHUNK_THRESHOLD:
+            st.warning(
+                f"{base_msg}  \nDocument exceeds {CHUNK_THRESHOLD:,} characters — "
+                "it will be analysed in chunks and results merged automatically."
+            )
+        else:
+            st.success(base_msg)
     with col2:
         analyse_btn = st.button(
             "Run Compliance Analysis", type="primary", use_container_width=True
