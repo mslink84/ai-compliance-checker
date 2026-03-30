@@ -25,6 +25,7 @@ COOLDOWN_SECONDS      = 30
 MAX_DOC_CHARS         = 100_000   # hard ceiling before analysis (~25k tokens)
 MIN_DOC_CHARS         = 10        # reject empty / trivial documents
 MAX_HASH_HISTORY      = 5         # number of recent doc hashes to track for duplicates
+MAX_AUTH_ATTEMPTS     = 5         # wrong access codes before session is locked out
 
 
 def _access_code() -> str:
@@ -44,6 +45,7 @@ def _access_code() -> str:
 def _init() -> None:
     defaults: dict = {
         "_g_authed":       False,   # access code passed
+        "_g_auth_fails":   0,       # consecutive wrong access code attempts
         "_g_run_count":    0,       # total runs this session
         "_g_day":          None,    # ISO date string of current day
         "_g_day_count":    0,       # runs today
@@ -69,6 +71,16 @@ def require_access_code() -> bool:
         return True
 
     st.title("AI Compliance Checker")
+
+    # Hard lockout after too many wrong attempts
+    if st.session_state["_g_auth_fails"] >= MAX_AUTH_ATTEMPTS:
+        logger.warning("guard: session locked – too many failed attempts")
+        st.error(
+            f"Too many incorrect attempts. "
+            "This session is locked — please open a new browser tab to try again."
+        )
+        return False
+
     st.markdown("Please enter the access code to continue.")
     code = st.text_input("Access code", type="password", key="_gate_input",
                          placeholder="Enter access code…")
@@ -76,11 +88,18 @@ def require_access_code() -> bool:
     if st.button("Continue", key="_gate_btn"):
         if code == _access_code():
             st.session_state["_g_authed"] = True
+            st.session_state["_g_auth_fails"] = 0
             logger.info("guard: access granted")
             st.rerun()
         else:
-            logger.warning("guard: access denied – wrong code")
-            st.error("Incorrect access code. Please try again.")
+            st.session_state["_g_auth_fails"] += 1
+            fails = st.session_state["_g_auth_fails"]
+            remaining = MAX_AUTH_ATTEMPTS - fails
+            logger.warning("guard: access denied – wrong code (attempt %d/%d)", fails, MAX_AUTH_ATTEMPTS)
+            if remaining > 0:
+                st.error(f"Incorrect access code. {remaining} attempt(s) remaining.")
+            else:
+                st.rerun()  # triggers the lockout message above
 
     return False
 
