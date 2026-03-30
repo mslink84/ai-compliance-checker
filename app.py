@@ -32,6 +32,314 @@ DISCLAIMER = (
     "Always validate findings with a qualified compliance professional."
 )
 
+# ── CSS injection ─────────────────────────────────────────────────────────────────
+
+def _inject_css():
+    st.markdown("""
+    <style>
+
+    /* ── Hide Streamlit chrome ───────────────────────────────────── */
+    #MainMenu          {visibility: hidden;}
+    footer             {visibility: hidden;}
+    [data-testid="stToolbar"] {visibility: hidden;}
+
+    /* ── CSS variables ───────────────────────────────────────────── */
+    :root {
+        --bg:       #0d1117;
+        --bg2:      #161b22;
+        --card:     #1c2128;
+        --border:   #30363d;
+        --accent:   #4a7fd4;
+        --accent2:  #79b8ff;
+        --tx:       #e6edf3;
+        --tx2:      #8b949e;
+        --green:    #3fb950;
+        --amber:    #d29922;
+        --red:      #f85149;
+        --blue:     #388bfd;
+        --r:        8px;
+    }
+
+    /* ── App background ──────────────────────────────────────────── */
+    [data-testid="stAppViewContainer"],
+    [data-testid="stMain"],
+    .main {
+        background-color: var(--bg) !important;
+    }
+
+    .main .block-container {
+        padding: 1.5rem 2rem 3rem !important;
+        max-width: 1100px !important;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────────────── */
+    [data-testid="stSidebar"] {
+        background-color: var(--bg2) !important;
+        border-right: 1px solid var(--border) !important;
+    }
+    [data-testid="stSidebarContent"] {
+        padding: 1.5rem 1.25rem !important;
+    }
+
+    /* ── Top header bar ──────────────────────────────────────────── */
+    [data-testid="stHeader"] {
+        background-color: var(--bg) !important;
+        border-bottom: 1px solid var(--border) !important;
+    }
+
+    /* ── Headings ────────────────────────────────────────────────── */
+    h1 { font-size: clamp(1.4rem, 4vw, 2rem)   !important; font-weight: 700 !important; letter-spacing: -0.02em; }
+    h2 { font-size: clamp(1.1rem, 3vw, 1.5rem) !important; font-weight: 600 !important; }
+    h3 { font-size: clamp(1rem,  2.5vw, 1.2rem)!important; font-weight: 600 !important; }
+
+    /* ── Metric cards ────────────────────────────────────────────── */
+    [data-testid="metric-container"] {
+        background-color: var(--card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--r) !important;
+        padding: 1rem 1.25rem !important;
+        transition: border-color .2s;
+    }
+    [data-testid="metric-container"]:hover {
+        border-color: var(--accent) !important;
+    }
+    [data-testid="stMetricLabel"] {
+        color: var(--tx2) !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+    [data-testid="stMetricValue"] {
+        color: var(--tx) !important;
+        font-size: clamp(1.3rem, 4vw, 1.9rem) !important;
+        font-weight: 700 !important;
+    }
+
+    /* ── Progress bar (score) ────────────────────────────────────── */
+    [data-testid="stProgress"] > div > div > div > div {
+        background: linear-gradient(90deg, var(--accent), var(--accent2)) !important;
+        border-radius: 4px !important;
+    }
+    [data-testid="stProgress"] > div > div > div {
+        background-color: var(--border) !important;
+        border-radius: 4px !important;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────────── */
+    .stButton > button {
+        border-radius: var(--r) !important;
+        font-weight: 600 !important;
+        min-height: 44px !important;
+        transition: all .2s ease !important;
+    }
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #1a3a7a 0%, var(--accent) 100%) !important;
+        border: none !important;
+        color: #fff !important;
+        box-shadow: 0 2px 10px rgba(74,127,212,.35) !important;
+    }
+    .stButton > button[kind="primary"]:hover {
+        box-shadow: 0 4px 18px rgba(74,127,212,.55) !important;
+        transform: translateY(-1px) !important;
+    }
+    .stButton > button[kind="secondary"] {
+        background-color: var(--card) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--tx) !important;
+    }
+    .stButton > button[kind="secondary"]:hover {
+        border-color: var(--accent) !important;
+        color: var(--accent2) !important;
+    }
+
+    /* ── Download button ─────────────────────────────────────────── */
+    [data-testid="stDownloadButton"] > button {
+        background: linear-gradient(135deg, #1a6b3a, var(--green)) !important;
+        border: none !important;
+        color: #fff !important;
+        border-radius: var(--r) !important;
+        font-weight: 600 !important;
+        min-height: 44px !important;
+    }
+    [data-testid="stDownloadButton"] > button:hover {
+        box-shadow: 0 4px 14px rgba(63,185,80,.4) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* ── Expanders (findings) ────────────────────────────────────── */
+    [data-testid="stExpander"] {
+        background-color: var(--card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--r) !important;
+        margin-bottom: .5rem !important;
+    }
+    [data-testid="stExpander"]:hover {
+        border-color: var(--accent) !important;
+    }
+    .streamlit-expanderHeader {
+        background-color: var(--card) !important;
+        color: var(--tx) !important;
+        font-size: .88rem !important;
+        padding: .75rem 1rem !important;
+        font-weight: 500 !important;
+    }
+    .streamlit-expanderContent {
+        background-color: var(--bg2) !important;
+        border-top: 1px solid var(--border) !important;
+        padding: 1rem !important;
+    }
+
+    /* ── Alerts ──────────────────────────────────────────────────── */
+    [data-testid="stAlert"] {
+        border-radius: var(--r) !important;
+        border-left-width: 4px !important;
+    }
+
+    /* ── File uploader ───────────────────────────────────────────── */
+    [data-testid="stFileUploader"] {
+        background-color: var(--card) !important;
+        border: 2px dashed var(--border) !important;
+        border-radius: var(--r) !important;
+        transition: border-color .2s;
+    }
+    [data-testid="stFileUploader"]:hover {
+        border-color: var(--accent) !important;
+    }
+
+    /* ── Selectbox ───────────────────────────────────────────────── */
+    [data-testid="stSelectbox"] > div > div {
+        background-color: var(--card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--r) !important;
+    }
+
+    /* ── Multiselect ─────────────────────────────────────────────── */
+    [data-testid="stMultiSelect"] > div > div {
+        background-color: var(--card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--r) !important;
+    }
+
+    /* ── Text input (access gate) ────────────────────────────────── */
+    [data-testid="stTextInput"] > div > div > input {
+        background-color: var(--card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--r) !important;
+        color: var(--tx) !important;
+        padding: .75rem 1rem !important;
+        font-size: 1rem !important;
+    }
+    [data-testid="stTextInput"] > div > div > input:focus {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 3px rgba(74,127,212,.2) !important;
+    }
+
+    /* ── Tabs ────────────────────────────────────────────────────── */
+    [data-testid="stTabs"] [role="tablist"] {
+        background-color: var(--bg2) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--r) !important;
+        padding: .25rem !important;
+        gap: .25rem;
+    }
+    [data-testid="stTabs"] [role="tab"] {
+        border-radius: 6px !important;
+        color: var(--tx2) !important;
+        font-weight: 500 !important;
+        padding: .4rem 1rem !important;
+        transition: all .2s !important;
+        min-height: 44px !important;
+    }
+    [data-testid="stTabs"] [role="tab"][aria-selected="true"] {
+        background-color: var(--accent) !important;
+        color: #fff !important;
+    }
+
+    /* ── Divider ─────────────────────────────────────────────────── */
+    hr { border-color: var(--border) !important; margin: 1.5rem 0 !important; }
+
+    /* ── Caption ─────────────────────────────────────────────────── */
+    [data-testid="stCaptionContainer"] { color: var(--tx2) !important; }
+
+    /* ── Landing page feature cards ──────────────────────────────── */
+    .feature-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 1.25rem 1.5rem;
+        margin-bottom: .75rem;
+        transition: border-color .2s;
+    }
+    .feature-card:hover { border-color: var(--accent); }
+    .feature-card h4 {
+        color: var(--accent2) !important;
+        margin: 0 0 .4rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    .feature-card p {
+        color: var(--tx2);
+        margin: 0;
+        font-size: .9rem;
+        line-height: 1.5;
+    }
+
+    /* ── Score hero ──────────────────────────────────────────────── */
+    .score-hero {
+        background: linear-gradient(135deg, #1a2744 0%, var(--card) 100%);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    .score-hero .score-num {
+        font-size: clamp(2.5rem, 8vw, 4rem);
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.03em;
+    }
+    .score-hero .score-label {
+        font-size: .9rem;
+        color: var(--tx2);
+        margin-top: .25rem;
+    }
+
+    /* ── Mobile ──────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+        .main .block-container {
+            padding: 1rem .75rem 2rem !important;
+        }
+        .stButton > button {
+            width: 100% !important;
+            font-size: 1rem !important;
+        }
+        /* Wrap 4-column metric rows into 2×2 grid */
+        [data-testid="column"] {
+            min-width: 45% !important;
+            flex: 1 1 45% !important;
+        }
+        .streamlit-expanderHeader {
+            font-size: .8rem !important;
+        }
+        [data-testid="stTabs"] [role="tab"] {
+            padding: .4rem .6rem !important;
+            font-size: .85rem !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .main .block-container {
+            padding: .75rem .5rem 2rem !important;
+        }
+        [data-testid="stMetricValue"] {
+            font-size: 1.3rem !important;
+        }
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
 # ── Page config ───────────────────────────────────────────────────────────────────
 
 st.set_page_config(
@@ -40,6 +348,8 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+_inject_css()
 
 
 # ── Helper functions ──────────────────────────────────────────────────────────────
@@ -154,22 +464,31 @@ def render_results(analysis: ComplianceAnalysis):
 
     # ── Score banner ──────────────────────────────────────────────────────────────
     score = analysis.overall_score
-    label = "Good" if score >= 75 else ("Needs Improvement" if score >= 50 else "Critical Gaps")
+    if score >= 75:
+        label, colour = "Good", "#3fb950"
+    elif score >= 50:
+        label, colour = "Needs Improvement", "#d29922"
+    else:
+        label, colour = "Critical Gaps", "#f85149"
 
-    col_score, col_meta = st.columns([1, 3])
-    with col_score:
-        st.metric(label=f"Compliance Score ({label})", value=f"{score}/100")
-    with col_meta:
-        total         = len(analysis.findings)
-        compliant     = sum(1 for f in analysis.findings if f.status == "Compliant")
-        partial       = sum(1 for f in analysis.findings if f.status == "Partial")
-        non_compliant = sum(1 for f in analysis.findings if f.status == "Non-compliant")
+    st.markdown(f"""
+    <div class="score-hero">
+        <div class="score-num" style="color:{colour}">{score}<span style="font-size:.5em;color:#8b949e">/100</span></div>
+        <div class="score-label">Compliance Score — <strong style="color:{colour}">{label}</strong></div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.progress(score / 100)
 
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Total Requirements", total)
-        c2.metric("Compliant", compliant)
-        c3.metric("Partial", partial)
-        c4.metric("Non-compliant", non_compliant)
+    total         = len(analysis.findings)
+    compliant     = sum(1 for f in analysis.findings if f.status == "Compliant")
+    partial       = sum(1 for f in analysis.findings if f.status == "Partial")
+    non_compliant = sum(1 for f in analysis.findings if f.status == "Non-compliant")
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Total Requirements", total)
+    c2.metric("Compliant", compliant)
+    c3.metric("Partial", partial)
+    c4.metric("Non-compliant", non_compliant)
 
     # ── Document summary ──────────────────────────────────────────────────────────
     with st.expander("Document Summary", expanded=True):
@@ -246,38 +565,64 @@ def render_results(analysis: ComplianceAnalysis):
 
 def render_landing():
     """Show instructions before any file is uploaded."""
-    st.markdown(
-        """
-        ### How it works
+    st.markdown("""
+    <div style="margin-bottom:2rem">
+        <p style="color:#8b949e;font-size:1rem;margin-top:-.5rem">
+            Upload a policy document and get an instant AI-powered gap analysis against
+            GDPR, ISO 27001, or NIST CSF 2.0.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
-        1. **Upload** your security policy, data protection policy, or any relevant document
-        2. **Select** a compliance framework — or choose **All Frameworks** to run all three at once
-        3. **Click** "Run Compliance Analysis"
-        4. Review findings and download the PDF report
+    st.markdown("#### How it works")
+    st.markdown("""
+    <div class="feature-card">
+        <h4>① Select a framework</h4>
+        <p>Choose GDPR, ISO 27001, NIST CSF 2.0 — or run all three in parallel with <strong>All Frameworks</strong>.</p>
+    </div>
+    <div class="feature-card">
+        <h4>② Upload your document</h4>
+        <p>PDF, Word (.docx), or plain text. Up to 10 MB. Long documents are split and merged automatically.</p>
+    </div>
+    <div class="feature-card">
+        <h4>③ Get your gap analysis</h4>
+        <p>Every requirement is assessed — Compliant / Partial / Non-compliant — with risk level, confidence score, and a concrete recommendation.</p>
+    </div>
+    <div class="feature-card">
+        <h4>④ Download the PDF report</h4>
+        <p>Export a professional gap analysis report to share with your team or include in audit documentation.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-        ---
+    st.markdown("#### Supported Frameworks")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("""
+        <div class="feature-card">
+            <h4>🇪🇺 GDPR</h4>
+            <p>Data protection & privacy<br>12 requirements · EU organisations</p>
+        </div>""", unsafe_allow_html=True)
+    with col2:
+        st.markdown("""
+        <div class="feature-card">
+            <h4>🔒 ISO 27001:2022</h4>
+            <p>Information security management<br>13 requirements incl. Annex A</p>
+        </div>""", unsafe_allow_html=True)
+    with col3:
+        st.markdown("""
+        <div class="feature-card">
+            <h4>🇺🇸 NIST CSF 2.0</h4>
+            <p>Cybersecurity programme maturity<br>6 functions · GV ID PR DE RS RC</p>
+        </div>""", unsafe_allow_html=True)
 
-        ### Supported Frameworks
-
-        | Framework | Best For |
-        |---|---|
-        | **GDPR** | Data protection & privacy policies, EU organisations |
-        | **ISO 27001** | Information security management systems |
-        | **NIST CSF 2.0** | Cybersecurity programmes, US organisations |
-
-        ---
-
-        ### Limitations & Scope
-
-        This tool performs **AI-assisted** document analysis — it reads what is written and
-        compares it to framework requirements. It cannot:
-        - Audit live systems, databases, or infrastructure
-        - Detect verbal policies or undocumented controls
-        - Replace a formal compliance audit or legal review
-
-        Results should be treated as a **structured starting point**, not a definitive compliance verdict.
-        """
-    )
+    st.markdown("""
+    <div style="margin-top:1.5rem;padding:1rem 1.25rem;background:#1c2128;border:1px solid #30363d;
+                border-left:4px solid #388bfd;border-radius:8px;color:#8b949e;font-size:.88rem">
+        <strong style="color:#79b8ff">ℹ️ Limitations</strong> — This tool analyses only what is written in the
+        uploaded document. Verbal policies, undocumented controls, and live system configurations are not assessed.
+        Results are a structured starting point, not a formal audit.
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────────
@@ -323,7 +668,14 @@ with st.sidebar:
 if not require_access_code():
     st.stop()
 
-st.header("Gap Analysis Report")
+st.markdown("""
+<div style="padding:.5rem 0 1.5rem">
+    <h1 style="margin:0;background:linear-gradient(90deg,#79b8ff,#4a7fd4);
+               -webkit-background-clip:text;-webkit-text-fill-color:transparent">
+        🛡️ AI Compliance Checker
+    </h1>
+</div>
+""", unsafe_allow_html=True)
 
 if uploaded_file is None:
     render_landing()
