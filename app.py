@@ -12,6 +12,7 @@ from __future__ import annotations
 import io
 import os
 import traceback
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import streamlit as st
 
@@ -62,17 +63,57 @@ def extract_text(uploaded_file) -> str:
 
 def run_analysis(document_text: str, framework: str):
     """Call Claude, store result in session_state, then render."""
-    with st.spinner(f"Analysing document against {framework}… this may take 30–60 seconds."):
-        try:
-            analysis: ComplianceAnalysis = analyse_document(document_text, framework)
-            st.session_state["analysis"] = analysis
-        except Exception:
-            st.error("Analysis failed. See details below.")
-            st.code(traceback.format_exc())
+    if framework == "All Frameworks":
+        frameworks = list(FRAMEWORK_FILES.keys())
+        analyses: dict[str, ComplianceAnalysis] = {}
+        errors: dict[str, str] = {}
+
+        with st.spinner("Analysing against all frameworks in parallel… this may take 60–90 seconds."):
+            with ThreadPoolExecutor(max_workers=3) as executor:
+                futures = {
+                    executor.submit(analyse_document, document_text, fw): fw
+                    for fw in frameworks
+                }
+                for future in as_completed(futures):
+                    fw = futures[future]
+                    try:
+                        analyses[fw] = future.result()
+                    except Exception:
+                        errors[fw] = traceback.format_exc()
+
+        for fw, tb in errors.items():
+            st.error(f"Analysis failed for {fw}. See details below.")
+            st.code(tb)
+
+        if not analyses:
             st.stop()
 
-    st.success("Analysis complete!")
-    render_results(analysis)
+        st.session_state["analyses"] = analyses
+        st.session_state.pop("analysis", None)
+        st.success(f"Analysis complete! ({len(analyses)}/{len(frameworks)} frameworks)")
+        render_all_results(analyses)
+
+    else:
+        with st.spinner(f"Analysing document against {framework}… this may take 30–60 seconds."):
+            try:
+                analysis: ComplianceAnalysis = analyse_document(document_text, framework)
+                st.session_state["analysis"] = analysis
+                st.session_state.pop("analyses", None)
+            except Exception:
+                st.error("Analysis failed. See details below.")
+                st.code(traceback.format_exc())
+                st.stop()
+
+        st.success("Analysis complete!")
+        render_results(analysis)
+
+
+def render_all_results(analyses: dict):
+    """Render results for multiple frameworks in tabs."""
+    tabs = st.tabs(list(analyses.keys()))
+    for tab, (fw_name, analysis) in zip(tabs, analyses.items()):
+        with tab:
+            render_results(analysis)
 
 
 def render_results(analysis: ComplianceAnalysis):
@@ -228,8 +269,8 @@ with st.sidebar:
     st.subheader("1. Select Framework")
     framework = st.selectbox(
         "Compliance framework",
-        options=list(FRAMEWORK_FILES.keys()),
-        help="Choose the regulatory or security framework to analyse against.",
+        options=["All Frameworks"] + list(FRAMEWORK_FILES.keys()),
+        help="Choose a framework or select 'All Frameworks' to analyse against all three at once.",
     )
 
     st.divider()
@@ -288,5 +329,7 @@ else:
 
     if analyse_btn:
         run_analysis(document_text, framework)
-    elif "analysis" in st.session_state:
+    elif "analyses" in st.session_state and framework == "All Frameworks":
+        render_all_results(st.session_state["analyses"])
+    elif "analysis" in st.session_state and framework != "All Frameworks":
         render_results(st.session_state["analysis"])
