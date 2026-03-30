@@ -25,7 +25,7 @@ COOLDOWN_SECONDS      = 30
 MAX_DOC_CHARS         = 100_000   # hard ceiling before analysis (~25k tokens)
 MIN_DOC_CHARS         = 10        # reject empty / trivial documents
 MAX_HASH_HISTORY      = 5         # number of recent doc hashes to track for duplicates
-MAX_AUTH_ATTEMPTS     = 5         # wrong access codes before session is locked out
+MAX_AUTH_ATTEMPTS     = 3         # wrong access codes before session is locked out
 
 
 def _access_code() -> str:
