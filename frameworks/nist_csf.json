@@ -1,0 +1,43 @@
+{
+  "name": "NIST CSF 2.0",
+  "full_name": "NIST Cybersecurity Framework 2.0",
+  "version": "2.0 (2024)",
+  "requirements": [
+    {
+      "id": "CSF-GV",
+      "name": "GOVERN – Organisational Context and Risk Management",
+      "description": "Establish and monitor the organisation's cybersecurity risk management strategy, expectations, and policy. Covers: organisational context (GV.OC), risk management strategy (GV.RM), roles and responsibilities (GV.RR), policies and procedures (GV.PO), oversight (GV.OV), and cybersecurity supply chain risk (GV.SC).",
+      "keywords": ["governance", "risk strategy", "policies", "roles", "oversight", "supply chain", "board", "executive"]
+    },
+    {
+      "id": "CSF-ID",
+      "name": "IDENTIFY – Asset Management and Risk Assessment",
+      "description": "Develop an organisational understanding to manage cybersecurity risk to systems, people, assets, data and capabilities. Covers: asset management (ID.AM) – inventory of hardware, software, data; risk assessment (ID.RA) – identifying, analysing and prioritising risks; improvement (ID.IM) – lessons learned.",
+      "keywords": ["asset inventory", "asset management", "risk assessment", "data inventory", "hardware inventory", "software inventory", "vulnerability assessment"]
+    },
+    {
+      "id": "CSF-PR",
+      "name": "PROTECT – Safeguards and Controls",
+      "description": "Develop and implement appropriate safeguards to ensure delivery of services. Covers: identity management and access control (PR.AA) – authentication, authorisation, least privilege; awareness and training (PR.AT); data security (PR.DS) – encryption, backup, data handling; platform security (PR.PS) – hardening, patching, secure configuration; technology infrastructure resilience (PR.IR).",
+      "keywords": ["access control", "MFA", "least privilege", "training", "encryption", "backup", "patching", "hardening", "configuration management"]
+    },
+    {
+      "id": "CSF-DE",
+      "name": "DETECT – Continuous Monitoring and Anomalies",
+      "description": "Develop and implement appropriate activities to identify the occurrence of a cybersecurity event. Covers: continuous monitoring (DE.CM) – monitoring networks, computing hardware, software, service providers, and external threats; adverse event analysis (DE.AE) – detecting anomalies, investigating events, estimating impact.",
+      "keywords": ["monitoring", "SIEM", "IDS", "IPS", "anomaly detection", "log management", "alerting", "threat detection"]
+    },
+    {
+      "id": "CSF-RS",
+      "name": "RESPOND – Incident Response",
+      "description": "Develop and implement appropriate activities to take action regarding a detected cybersecurity incident. Covers: incident management (RS.MA) – incident response plan, triage; incident analysis (RS.AN) – forensics, root cause; incident response reporting and communication (RS.CO) – internal and external communication, regulatory notification; incident mitigation (RS.MI).",
+      "keywords": ["incident response", "incident response plan", "IRP", "communication plan", "containment", "eradication", "forensics", "breach notification"]
+    },
+    {
+      "id": "CSF-RC",
+      "name": "RECOVER – Recovery Planning and Improvements",
+      "description": "Develop and implement appropriate activities to maintain plans for resilience and to restore any capabilities or services that were impaired due to a cybersecurity incident. Covers: incident recovery plan execution (RC.RP) – recovery time objectives, restore from backup; incident recovery communication (RC.CO) – stakeholder updates, reputational repair.",
+      "keywords": ["disaster recovery", "business continuity", "RTO", "RPO", "backup restoration", "recovery plan", "lessons learned"]
+    }
+  ]
+}

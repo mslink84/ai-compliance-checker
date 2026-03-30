@@ -1,0 +1,73 @@
+{
+  "name": "ISO 27001",
+  "full_name": "ISO/IEC 27001:2022 – Information Security Management Systems",
+  "version": "2022",
+  "requirements": [
+    {
+      "id": "ISO-4",
+      "name": "Context of the organisation",
+      "description": "The organisation must understand its internal and external context, identify interested parties and their requirements, and define the scope of the ISMS. This forms the foundation for the entire information security management system.",
+      "keywords": ["ISMS scope", "context", "stakeholders", "interested parties"]
+    },
+    {
+      "id": "ISO-5",
+      "name": "Leadership and commitment",
+      "description": "Top management must demonstrate leadership and commitment by establishing an information security policy, assigning roles and responsibilities, and ensuring integration of ISMS requirements into business processes. An information security policy must be documented and communicated.",
+      "keywords": ["top management", "information security policy", "leadership", "commitment", "roles", "responsibilities"]
+    },
+    {
+      "id": "ISO-6",
+      "name": "Risk assessment and treatment",
+      "description": "The organisation must define and apply an information security risk assessment process: identifying risks, analysing and evaluating risk levels, selecting risk treatment options (mitigate, accept, avoid, transfer), and implementing a risk treatment plan.",
+      "keywords": ["risk assessment", "risk treatment", "risk register", "risk management", "risk acceptance"]
+    },
+    {
+      "id": "ISO-7",
+      "name": "Support – Resources, competence, awareness",
+      "description": "The organisation must determine and provide necessary resources, ensure people are competent (education, training, experience), create awareness of the policy and their contribution, and establish a documented information process (documentation control).",
+      "keywords": ["training", "awareness", "competence", "resources", "documentation", "records"]
+    },
+    {
+      "id": "ISO-8",
+      "name": "Operational planning and control",
+      "description": "The organisation must plan, implement, control, and review processes to meet ISMS requirements. This includes operational risk assessment and treatment processes, change management, and controls over outsourced processes.",
+      "keywords": ["operational controls", "change management", "outsourcing", "supplier management"]
+    },
+    {
+      "id": "ISO-9",
+      "name": "Performance evaluation",
+      "description": "The organisation must monitor, measure, analyse and evaluate the ISMS, conduct internal audits at planned intervals, and carry out management reviews. Results must be documented.",
+      "keywords": ["internal audit", "management review", "monitoring", "KPIs", "metrics", "performance measurement"]
+    },
+    {
+      "id": "ISO-10",
+      "name": "Improvement – Nonconformity and corrective action",
+      "description": "When a nonconformity occurs, the organisation must react to it, evaluate causes, implement corrective actions, and review their effectiveness. Opportunities for continual improvement must be identified.",
+      "keywords": ["corrective action", "nonconformity", "continual improvement", "lessons learned"]
+    },
+    {
+      "id": "ISO-A5",
+      "name": "Annex A – Organisational controls",
+      "description": "Key controls include: information security policies (A.5.1), roles and responsibilities (A.5.2), threat intelligence (A.5.7), information security in project management (A.5.8), asset management (A.5.9), acceptable use (A.5.10), information classification (A.5.12), handling of classified information (A.5.13), supplier relationships and ICT supply chain (A.5.19-5.22), incident management (A.5.24-5.28), business continuity (A.5.29-5.30), legal and compliance (A.5.31-5.36).",
+      "keywords": ["policies", "asset inventory", "classification", "supplier", "incident management", "business continuity", "legal compliance"]
+    },
+    {
+      "id": "ISO-A6",
+      "name": "Annex A – People controls",
+      "description": "Controls related to personnel: background screening (A.6.1), terms and conditions of employment (A.6.2), information security awareness and training (A.6.3), disciplinary process (A.6.4), responsibilities after termination (A.6.5), remote working (A.6.7), information security event reporting (A.6.8).",
+      "keywords": ["background checks", "employment contracts", "security training", "termination", "remote work", "HR security"]
+    },
+    {
+      "id": "ISO-A7",
+      "name": "Annex A – Physical controls",
+      "description": "Controls for physical and environmental security: physical security perimeters (A.7.1), physical entry (A.7.2), securing offices and facilities (A.7.3), clear desk and clear screen (A.7.7), equipment siting and protection (A.7.8), secure disposal of equipment (A.7.14).",
+      "keywords": ["physical access", "clear desk", "secure disposal", "environmental controls", "physical security"]
+    },
+    {
+      "id": "ISO-A8",
+      "name": "Annex A – Technological controls",
+      "description": "Key technical controls: user endpoint devices (A.8.1), privileged access rights (A.8.2), information access restriction (A.8.3), source code management (A.8.4), authentication (A.8.5), capacity management (A.8.6), malware protection (A.8.7), technical vulnerability management/patching (A.8.8), configuration management (A.8.9), network security (A.8.20-8.22), web filtering (A.8.23), encryption (A.8.24), secure development (A.8.25-8.31), data masking (A.8.11), data leakage prevention (A.8.12), backup (A.8.13), redundancy (A.8.14), logging and monitoring (A.8.15-8.16), clock synchronisation (A.8.17), privileged utility programs (A.8.18).",
+      "keywords": ["access control", "encryption", "patching", "vulnerability management", "backup", "logging", "monitoring", "MFA", "network security"]
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "name": "GDPR",
+  "full_name": "General Data Protection Regulation (EU) 2016/679",
+  "version": "2018",
+  "requirements": [
+    {
+      "id": "GDPR-Art5",
+      "name": "Principles of data processing",
+      "description": "Personal data must be processed lawfully, fairly and transparently. Collected for specified, explicit and legitimate purposes. Adequate, relevant and limited to what is necessary. Accurate and kept up to date. Kept no longer than necessary. Processed with appropriate security.",
+      "keywords": ["lawfulness", "transparency", "purpose limitation", "data minimisation", "accuracy", "storage limitation", "integrity", "confidentiality"]
+    },
+    {
+      "id": "GDPR-Art6",
+      "name": "Lawful basis for processing",
+      "description": "Processing must have at least one legal basis: consent, contract, legal obligation, vital interests, public task, or legitimate interests. The lawful basis must be documented before processing begins.",
+      "keywords": ["legal basis", "consent", "contract", "legitimate interests", "lawful processing"]
+    },
+    {
+      "id": "GDPR-Art7",
+      "name": "Conditions for consent",
+      "description": "Where consent is used as the legal basis, it must be freely given, specific, informed and unambiguous. Consent must be as easy to withdraw as to give. Pre-ticked boxes or inactivity do not constitute consent.",
+      "keywords": ["consent", "opt-in", "withdrawal", "freely given", "unambiguous"]
+    },
+    {
+      "id": "GDPR-Art12-14",
+      "name": "Transparency and information obligations",
+      "description": "Data subjects must be informed about: identity of controller, purposes and legal basis for processing, retention periods, data subject rights, any third-party sharing, automated decision-making. Information must be provided in clear, plain language.",
+      "keywords": ["privacy notice", "privacy policy", "transparency", "information", "data subject notification"]
+    },
+    {
+      "id": "GDPR-Art15-22",
+      "name": "Data subject rights",
+      "description": "Organisations must have processes to handle: right of access (Art.15), right to rectification (Art.16), right to erasure/right to be forgotten (Art.17), right to restrict processing (Art.18), right to data portability (Art.20), right to object (Art.21). Requests must be responded to within one month.",
+      "keywords": ["right of access", "right to erasure", "data portability", "right to object", "subject access request", "SAR"]
+    },
+    {
+      "id": "GDPR-Art24-25",
+      "name": "Data protection by design and by default",
+      "description": "Controllers must implement data protection principles from the outset of system design (privacy by design) and ensure that only personal data necessary for each purpose is processed by default (privacy by default).",
+      "keywords": ["privacy by design", "privacy by default", "data protection by design", "controller obligations"]
+    },
+    {
+      "id": "GDPR-Art28",
+      "name": "Data processor agreements",
+      "description": "Where a controller uses a processor, a written contract (Data Processing Agreement/DPA) must be in place. The DPA must specify the subject-matter, duration, nature and purpose of the processing, the type of personal data and categories of data subjects.",
+      "keywords": ["data processing agreement", "DPA", "processor", "third party", "vendor"]
+    },
+    {
+      "id": "GDPR-Art30",
+      "name": "Records of processing activities (RoPA)",
+      "description": "Controllers must maintain a written record of all processing activities (Record of Processing Activities). This must include: purposes, categories of data, recipients, retention periods, security measures. Organisations with fewer than 250 employees may be exempt except for high-risk processing.",
+      "keywords": ["RoPA", "records of processing", "data inventory", "data map", "processing register"]
+    },
+    {
+      "id": "GDPR-Art32",
+      "name": "Security of processing",
+      "description": "Appropriate technical and organisational measures must be implemented to ensure a level of security appropriate to the risk. This includes pseudonymisation, encryption, ensuring ongoing confidentiality, integrity, availability and resilience of systems, and regular testing.",
+      "keywords": ["encryption", "pseudonymisation", "security measures", "technical measures", "organisational measures", "security policy"]
+    },
+    {
+      "id": "GDPR-Art33-34",
+      "name": "Breach notification",
+      "description": "Personal data breaches must be notified to the supervisory authority within 72 hours of becoming aware. If the breach is likely to result in a high risk to individuals, those individuals must also be notified without undue delay.",
+      "keywords": ["data breach", "breach notification", "incident response", "72 hours", "supervisory authority"]
+    },
+    {
+      "id": "GDPR-Art35",
+      "name": "Data Protection Impact Assessment (DPIA)",
+      "description": "A DPIA must be carried out before processing that is likely to result in a high risk to individuals. This includes systematic profiling, large-scale processing of special categories of data, or systematic monitoring of publicly accessible areas.",
+      "keywords": ["DPIA", "data protection impact assessment", "risk assessment", "high risk processing"]
+    },
+    {
+      "id": "GDPR-Art37-39",
+      "name": "Data Protection Officer (DPO)",
+      "description": "A DPO must be designated when: processing is carried out by a public authority; core activities require large-scale systematic monitoring of individuals; or core activities involve large-scale processing of special categories of data. The DPO must be independent and report to the highest management level.",
+      "keywords": ["DPO", "data protection officer", "independent", "mandatory DPO"]
+    }
+  ]
+}
