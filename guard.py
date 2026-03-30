@@ -36,7 +36,7 @@ def _access_code() -> str:
     try:
         return st.secrets["ACCESS_CODE"]
     except Exception:
-        return os.environ.get("ACCESS_CODE", "micke@msun.se")
+        return os.environ.get("ACCESS_CODE", "")
 
 
 # ── Session state bootstrap ───────────────────────────────────────────────────────
