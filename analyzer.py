@@ -147,6 +147,11 @@ def _call_claude(
     except anthropic.APIError as exc:
         raise RuntimeError(f"Claude API error: {exc}") from exc
 
+    if not response.content:
+        raise RuntimeError(
+            "Claude returned an empty response. This is unexpected — please try again."
+        )
+
     raw = response.content[0].text.strip()
 
     # Strip markdown code fences if the model added them despite instructions

@@ -1,6 +1,6 @@
 # AI Compliance Checker
 
-An AI-powered document analysis tool that performs compliance gap analysis against GDPR, ISO 27001:2022, and NIST CSF 2.0. Upload a policy or security document and receive a structured gap analysis report with findings, risk ratings, confidence scores, and a downloadable PDF.
+An AI-powered document analysis tool that performs compliance gap analysis against **GDPR, ISO 27001:2022, NIST CSF 2.0, and SOC 2**. Upload a policy or security document and receive a structured gap analysis report with findings, risk ratings, confidence scores, and a downloadable PDF.
 
 **Live demo:** [ai-comp-checker.streamlit.app](https://ai-comp-checker.streamlit.app)
 **Built by:** Mikael Sundberg · [www.msun.se](https://www.msun.se)
@@ -185,3 +185,15 @@ This project was built as part of a portfolio targeting **GRC / Compliance Analy
 - Awareness of AI limitations in formal compliance contexts
 - Server-side security controls and abuse prevention
 - Python, Streamlit, and API integration skills
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| **PDF returns no text** | The PDF is likely scanned/image-only. Open in Acrobat → Save As → Word, then re-upload. |
+| **Analysis takes very long** | Long documents are split into chunks. "All Frameworks" runs 4 analyses in parallel — allow 60–90 s. |
+| **"Rate limit" error** | Max 3 analyses per session / per day. Start a new browser tab or come back tomorrow. |
+| **"Incorrect access code"** | After 3 failed attempts the session locks. Open a new tab or contact Mikael to request the code. |
+| **SOC 2 not in dropdown** | Hard-refresh the page (`Ctrl+Shift+R`) — Streamlit Cloud may be redeploying after a recent update. |

@@ -76,8 +76,9 @@ def require_access_code() -> bool:
     if st.session_state["_g_auth_fails"] >= MAX_AUTH_ATTEMPTS:
         logger.warning("guard: session locked – too many failed attempts")
         st.error(
-            f"Too many incorrect attempts. "
-            "This session is locked — please open a new browser tab to try again."
+            "Too many incorrect attempts — this session is locked. "
+            "Open a new browser tab to try again, or contact "
+            "[Mikael Sundberg](https://www.msun.se) to request access."
         )
         return False
 

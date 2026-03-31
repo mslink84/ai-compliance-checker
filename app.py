@@ -16,14 +16,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import streamlit as st
 
-from analyzer import FRAMEWORK_FILES, ComplianceAnalysis, analyse_document
+from analyzer import FRAMEWORK_FILES, MAX_DOC_CHARS, ComplianceAnalysis, analyse_document
 from guard import check_request, record_run, require_access_code
 from report_generator import generate_pdf
 
 # ── Constants ────────────────────────────────────────────────────────────────────
 
 MAX_FILE_SIZE_MB = 10
-CHUNK_THRESHOLD  = 14_000  # must match analyzer.MAX_DOC_CHARS
 
 DISCLAIMER = (
     "**AI-assisted analysis** — results reflect only what is explicitly stated in the "
@@ -616,7 +615,7 @@ def render_landing():
 
 with st.sidebar:
     st.title("AI Compliance Checker")
-    st.caption("Mikael Sundberg - www.msun.se")
+    st.caption("Mikael Sundberg · [www.msun.se](https://www.msun.se)")
     st.divider()
     st.markdown(
         """
@@ -689,18 +688,29 @@ else:
     document_text = extract_text(file_bytes, uploaded_file.name)
 
     if not document_text.strip():
-        st.error(
-            "Could not extract text from the uploaded file. "
-            "Make sure the PDF is not scanned/image-only, or try converting to .txt."
-        )
+        name_lower = uploaded_file.name.lower()
+        if name_lower.endswith(".pdf"):
+            hint = (
+                "The PDF appears to contain no extractable text. "
+                "This usually means it is a **scanned / image-only PDF**. "
+                "Try: open in Adobe Acrobat → Save As → Word or Text, then re-upload."
+            )
+        elif name_lower.endswith(".docx"):
+            hint = (
+                "Could not read the Word file. "
+                "Make sure it is a standard .docx file (not .doc or password-protected)."
+            )
+        else:
+            hint = "The file appears to be empty or contains no readable text."
+        st.error(hint)
         st.stop()
 
     col1, col2 = st.columns([2, 1])
     with col1:
         base_msg = f"Document loaded: **{uploaded_file.name}** ({len(document_text):,} characters)"
-        if len(document_text) > CHUNK_THRESHOLD:
+        if len(document_text) > MAX_DOC_CHARS:
             st.warning(
-                f"{base_msg}  \nDocument exceeds {CHUNK_THRESHOLD:,} characters — "
+                f"{base_msg}  \nDocument exceeds {MAX_DOC_CHARS:,} characters — "
                 "it will be analysed in chunks and results merged automatically."
             )
         else:
