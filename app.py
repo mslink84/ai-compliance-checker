@@ -625,40 +625,24 @@ def render_landing():
     """, unsafe_allow_html=True)
 
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────────
+# ── Sidebar (info only – no interactive controls) ─────────────────────────────────
 
 with st.sidebar:
     st.title("AI Compliance Checker")
     st.caption("Mikael Sundberg - www.msun.se")
     st.divider()
-
-    st.subheader("1. Select Framework")
-    framework = st.selectbox(
-        "Compliance framework",
-        options=["All Frameworks"] + list(FRAMEWORK_FILES.keys()),
-        help="Choose a single framework or 'All Frameworks' to run all three in parallel.",
-    )
-
-    st.divider()
-    st.subheader("2. Upload Document")
-    uploaded_file = st.file_uploader(
-        "Upload your policy or security document",
-        type=["pdf", "txt", "docx"],
-        help="PDF, Word (.docx), or plain text. Max 10 MB.",
-    )
-
-    st.divider()
     st.markdown(
         """
         **What this tool does:**
-        - Extracts text from your document
-        - Analyses each requirement
+        - Analyses policy documents against compliance frameworks
         - Scores compliance (0–100)
-        - Shows AI confidence per finding
+        - Shows risk level and AI confidence per finding
         - Exports a professional PDF report
+
+        **Supported frameworks:**
+        GDPR · ISO 27001 · NIST CSF 2.0 · SOC 2
         """
     )
-
     if not os.environ.get("ANTHROPIC_API_KEY"):
         st.warning("ANTHROPIC_API_KEY not set. Add it before running.")
 
@@ -669,13 +653,31 @@ if not require_access_code():
     st.stop()
 
 st.markdown("""
-<div style="padding:.5rem 0 1.5rem">
+<div style="padding:.5rem 0 1rem">
     <h1 style="margin:0;background:linear-gradient(90deg,#79b8ff,#4a7fd4);
                -webkit-background-clip:text;-webkit-text-fill-color:transparent">
         🛡️ AI Compliance Checker
     </h1>
 </div>
 """, unsafe_allow_html=True)
+
+# ── Step 1 + 2: Framework selector and file uploader always in main area ──────────
+
+col_fw, col_up = st.columns([1, 2])
+with col_fw:
+    framework = st.selectbox(
+        "① Compliance framework",
+        options=["All Frameworks"] + list(FRAMEWORK_FILES.keys()),
+        help="Choose a framework or run all at once.",
+    )
+with col_up:
+    uploaded_file = st.file_uploader(
+        "② Upload document (PDF, DOCX or TXT — max 10 MB)",
+        type=["pdf", "txt", "docx"],
+        label_visibility="visible",
+    )
+
+st.divider()
 
 if uploaded_file is None:
     render_landing()
