@@ -59,6 +59,7 @@ FRAMEWORK_FILES = {
     "GDPR":          FRAMEWORKS_DIR / "gdpr.json",
     "ISO 27001":     FRAMEWORKS_DIR / "iso27001.json",
     "NIST CSF 2.0":  FRAMEWORKS_DIR / "nist_csf.json",
+    "SOC 2":         FRAMEWORKS_DIR / "soc2.json",
 }
 
 

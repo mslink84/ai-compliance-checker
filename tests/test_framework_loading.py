@@ -9,7 +9,7 @@ def test_all_framework_files_exist():
         assert path.exists(), f"Framework file missing for {name}: {path}"
 
 
-@pytest.mark.parametrize("name", ["GDPR", "ISO 27001", "NIST CSF 2.0"])
+@pytest.mark.parametrize("name", ["GDPR", "ISO 27001", "NIST CSF 2.0", "SOC 2"])
 def test_framework_has_required_keys(name):
     fw = load_framework(name)
     assert "name" in fw
@@ -18,7 +18,7 @@ def test_framework_has_required_keys(name):
     assert len(fw["requirements"]) > 0
 
 
-@pytest.mark.parametrize("name", ["GDPR", "ISO 27001", "NIST CSF 2.0"])
+@pytest.mark.parametrize("name", ["GDPR", "ISO 27001", "NIST CSF 2.0", "SOC 2"])
 def test_requirements_have_required_fields(name):
     fw = load_framework(name)
     for req in fw["requirements"]:

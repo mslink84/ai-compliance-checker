@@ -1,0 +1,73 @@
+{
+  "name": "SOC 2",
+  "full_name": "SOC 2 – System and Organisation Controls (Trust Service Criteria)",
+  "version": "2017 (updated 2022)",
+  "requirements": [
+    {
+      "id": "SOC2-CC1",
+      "name": "Control Environment",
+      "description": "The entity demonstrates a commitment to integrity and ethical values. Management establishes structures, reporting lines, and appropriate authorities. The board oversees the design and operation of controls. The organisation is committed to attracting, developing, and retaining competent individuals. Accountability for control responsibilities is enforced.",
+      "keywords": ["code of conduct", "ethics", "organisational structure", "board oversight", "accountability", "competence", "HR policy"]
+    },
+    {
+      "id": "SOC2-CC2",
+      "name": "Communication and Information",
+      "description": "The entity obtains or generates relevant, quality information to support internal control. Internal communication occurs, including objectives, responsibilities, and significant matters. External communication enables external parties to understand their role and responsibilities.",
+      "keywords": ["security awareness", "communication plan", "information quality", "external communication", "reporting", "training", "notifications"]
+    },
+    {
+      "id": "SOC2-CC3",
+      "name": "Risk Assessment",
+      "description": "The entity specifies objectives clearly to enable identification and assessment of risks. The entity identifies risks to the achievement of its objectives and analyses them as a basis for determining how risks should be managed. The entity considers the potential for fraud and identifies and assesses changes that could significantly impact internal controls.",
+      "keywords": ["risk assessment", "risk register", "fraud risk", "change risk", "risk identification", "risk analysis", "threat modelling"]
+    },
+    {
+      "id": "SOC2-CC4",
+      "name": "Monitoring Activities",
+      "description": "The entity selects, develops, and performs ongoing or separate evaluations to determine whether components of internal control are present and functioning. The entity evaluates and communicates internal control deficiencies in a timely manner to those parties responsible for taking corrective action.",
+      "keywords": ["monitoring", "internal audit", "control testing", "deficiency", "remediation", "continuous monitoring", "metrics"]
+    },
+    {
+      "id": "SOC2-CC5",
+      "name": "Control Activities – Policies and Procedures",
+      "description": "The entity selects and develops control activities that contribute to the mitigation of risks. The entity also selects and develops general control activities over technology to support achievement of objectives. The entity deploys control activities through policies that establish what is expected and procedures that put policies into action.",
+      "keywords": ["policies", "procedures", "security policy", "acceptable use", "control activities", "documented controls", "policy review"]
+    },
+    {
+      "id": "SOC2-CC6",
+      "name": "Logical and Physical Access Controls",
+      "description": "Logical access security measures restrict access to information assets to authorised users only. Prior to issuing access credentials, users are registered and authorised. Access credentials are revoked upon termination. Physical access to facilities is restricted. Multi-factor authentication (MFA) is enforced. Privileged access is managed and monitored. Encryption protects data in transit and at rest.",
+      "keywords": ["access control", "MFA", "multi-factor authentication", "least privilege", "user provisioning", "de-provisioning", "physical access", "encryption", "privileged access", "password policy"]
+    },
+    {
+      "id": "SOC2-CC7",
+      "name": "System Operations – Detection and Response",
+      "description": "The entity detects and monitors for new vulnerabilities and threats. Procedures are in place for responding to identified security incidents. Anomalies and security incidents are identified and analysed. Security incidents are contained, remediated, and recovered from. Root cause analysis is performed and improvements are made. Backup and recovery procedures are in place.",
+      "keywords": ["incident response", "incident management", "vulnerability scanning", "anomaly detection", "SIEM", "backup", "recovery", "logging", "monitoring", "patch management"]
+    },
+    {
+      "id": "SOC2-CC8",
+      "name": "Change Management",
+      "description": "The entity authorises, designs, develops, tests, and implements changes to infrastructure, data, software, and procedures. Changes are tested prior to implementation. Emergency changes follow a defined process. Configuration changes are tracked and reviewed. Unauthorised changes are detected and addressed.",
+      "keywords": ["change management", "change control", "testing", "deployment", "configuration management", "SDLC", "release management", "version control"]
+    },
+    {
+      "id": "SOC2-CC9",
+      "name": "Risk Mitigation – Vendors and Business Continuity",
+      "description": "The entity identifies, selects, and manages vendors and business partners who provide goods and services critical to achieving objectives. Vendor risk assessments are performed. Contracts include appropriate security and data protection requirements. Business continuity and disaster recovery plans are documented, tested, and maintained.",
+      "keywords": ["vendor management", "third-party risk", "supply chain", "business continuity", "disaster recovery", "BCP", "DRP", "contract", "SLA", "vendor assessment"]
+    },
+    {
+      "id": "SOC2-A1",
+      "name": "Availability",
+      "description": "The entity's system is available for operation and use as committed or agreed. Current processing capacity and usage are maintained, monitored, and evaluated. Environmental threats are identified and countermeasures implemented. Recovery time objectives (RTO) and recovery point objectives (RPO) are defined. Backups are tested regularly.",
+      "keywords": ["availability", "uptime", "SLA", "RTO", "RPO", "capacity management", "disaster recovery", "backup testing", "redundancy", "failover"]
+    },
+    {
+      "id": "SOC2-C1",
+      "name": "Confidentiality",
+      "description": "Information designated as confidential is protected as committed or agreed. Confidential information is identified and protected from unauthorised access during collection, processing, maintenance, use, retention, disclosure, and disposal. Encryption, access restrictions, and secure disposal processes are in place.",
+      "keywords": ["confidentiality", "data classification", "encryption at rest", "encryption in transit", "data disposal", "secure deletion", "NDA", "information handling", "data leakage"]
+    }
+  ]
+}

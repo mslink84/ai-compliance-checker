@@ -29,8 +29,9 @@ For documents exceeding 14,000 characters, the tool automatically splits the doc
 | **GDPR** (EU 2016/679) | Data protection & privacy — 12 requirements |
 | **ISO 27001:2022** | Information security management — 13 requirements (incl. A8 split into Access, Vuln, Monitoring) |
 | **NIST CSF 2.0** | Cybersecurity programme maturity — 6 functions |
+| **SOC 2** (TSC 2017) | SaaS & cloud service providers — 11 Trust Service Criteria |
 
-Select **All Frameworks** to run all three analyses in parallel.
+Select **All Frameworks** to run all four analyses in parallel.
 
 ---
 
@@ -85,7 +86,7 @@ streamlit run app.py
 pytest tests/ -v
 ```
 
-38 tests covering: access protection logic, framework JSON loading, Pydantic model validation, text extraction (TXT/DOCX/PDF), and PDF generation.
+38 tests covering: access protection logic, framework JSON loading (incl. SOC 2), Pydantic model validation, text extraction (TXT/DOCX/PDF), and PDF generation.
 
 ---
 
@@ -100,7 +101,8 @@ pytest tests/ -v
 ├── frameworks/
 │   ├── gdpr.json
 │   ├── iso27001.json
-│   └── nist_csf.json
+│   ├── nist_csf.json
+│   └── soc2.json
 └── tests/
     ├── test_guard.py
     ├── test_framework_loading.py
@@ -108,6 +110,40 @@ pytest tests/ -v
     ├── test_text_extraction.py
     └── test_pdf_generation.py
 ```
+
+---
+
+## Example Scenario
+
+**Document:** Fictional "Acme SaaS – Information Security Policy v1.2" (3 pages, plain text)
+**Framework:** GDPR
+**Result:** Compliance Score **58/100 – Needs Improvement**
+
+| Requirement | Status | Risk | Finding |
+|---|---|---|---|
+| Art. 5 – Principles of processing | ✅ Compliant | N/A | Policy explicitly states lawful basis, data minimisation, and purpose limitation |
+| Art. 6 – Lawful basis | ✅ Compliant | N/A | Consent and legitimate interest are documented as legal bases |
+| Art. 12–14 – Transparency | ⚠️ Partial | Medium | Privacy notice is mentioned but retention periods and third-party sharing are not specified |
+| Art. 15–22 – Data subject rights | ❌ Non-compliant | High | No process defined for handling subject access requests or right-to-erasure requests |
+| Art. 28 – Processor agreements | ⚠️ Partial | Medium | Vendor list exists but no mention of formal Data Processing Agreements (DPAs) |
+| Art. 32 – Security of processing | ✅ Compliant | N/A | Encryption at rest and in transit, access controls, and annual security testing are described |
+| Art. 33–34 – Breach notification | ❌ Non-compliant | High | No breach notification procedure. No mention of 72-hour reporting obligation to supervisory authority |
+| Art. 35 – DPIA | ⚠️ Partial | Medium | Risk assessments are referenced but no formal DPIA process is described |
+| Art. 37–39 – DPO | ✅ Compliant | N/A | DPO is appointed and contact details are provided |
+
+**Key Gaps identified:**
+1. No documented subject access request (SAR) handling procedure
+2. No 72-hour breach notification process to supervisory authority
+3. Data Processing Agreements not formalised with vendors
+4. Retention periods not specified in privacy notice
+
+**Priority Actions:**
+1. Implement SAR procedure with one-month response target
+2. Create a breach response runbook covering 72-hour notification
+3. Sign DPAs with all data processors (cloud providers, CRM, analytics)
+4. Add retention schedule to privacy notice
+
+**Takeaway:** The policy has a solid foundation (lawful basis, security measures, DPO) but is missing operational procedures for the most high-risk GDPR obligations. These gaps would be flagged in a real DPA audit.
 
 ---
 
