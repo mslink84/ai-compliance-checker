@@ -354,33 +354,16 @@ _inject_css()
 
 # ── Helper functions ──────────────────────────────────────────────────────────────
 
+from text_extractor import extract_text as _extract_text_raw
+
 @st.cache_data(show_spinner=False)
 def extract_text(file_bytes: bytes, file_name: str) -> str:
     """Extract plain text from PDF, DOCX or TXT bytes. Cached by content + name."""
-    name = file_name.lower()
-
-    if name.endswith(".txt"):
-        return file_bytes.decode("utf-8", errors="replace")
-
-    if name.endswith(".pdf"):
-        try:
-            import fitz  # PyMuPDF
-            doc = fitz.open(stream=file_bytes, filetype="pdf")
-            return "\n".join(page.get_text() for page in doc)
-        except Exception as e:
-            st.error(f"PDF extraction error: {e}")
-            return ""
-
-    if name.endswith(".docx"):
-        try:
-            from docx import Document
-            doc = Document(io.BytesIO(file_bytes))
-            return "\n".join(para.text for para in doc.paragraphs)
-        except Exception as e:
-            st.error(f"DOCX extraction error: {e}")
-            return ""
-
-    return ""
+    result = _extract_text_raw(file_bytes, file_name)
+    if result.startswith("[") and "error" in result:
+        st.error(result)
+        return ""
+    return result
 
 
 def run_analysis(document_text: str, framework: str):

@@ -1,11 +1,10 @@
-"""Tests for text extraction (extract_text in app.py)."""
+"""Tests for text extraction."""
 
 import io
 
 import pytest
 
-# Import the cached function's underlying logic directly to avoid Streamlit context
-from app import extract_text
+from text_extractor import extract_text
 
 
 def test_extract_txt():
