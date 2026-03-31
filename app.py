@@ -552,7 +552,7 @@ def render_landing():
     <div style="margin-bottom:2rem">
         <p style="color:#8b949e;font-size:1rem;margin-top:-.5rem">
             Upload a policy document and get an instant AI-powered gap analysis against
-            GDPR, ISO 27001, or NIST CSF 2.0.
+            GDPR, ISO 27001, NIST CSF 2.0, or SOC 2.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -561,7 +561,7 @@ def render_landing():
     st.markdown("""
     <div class="feature-card">
         <h4>① Select a framework</h4>
-        <p>Choose GDPR, ISO 27001, NIST CSF 2.0 — or run all three in parallel with <strong>All Frameworks</strong>.</p>
+        <p>Choose GDPR, ISO 27001, NIST CSF 2.0, or SOC 2 — or run all four in parallel with <strong>All Frameworks</strong>.</p>
     </div>
     <div class="feature-card">
         <h4>② Upload your document</h4>
@@ -578,12 +578,17 @@ def render_landing():
     """, unsafe_allow_html=True)
 
     st.markdown("#### Supported Frameworks")
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     with col1:
         st.markdown("""
         <div class="feature-card">
             <h4>🇪🇺 GDPR</h4>
             <p>Data protection & privacy<br>12 requirements · EU organisations</p>
+        </div>""", unsafe_allow_html=True)
+        st.markdown("""
+        <div class="feature-card">
+            <h4>🇺🇸 NIST CSF 2.0</h4>
+            <p>Cybersecurity programme maturity<br>6 functions · GV ID PR DE RS RC</p>
         </div>""", unsafe_allow_html=True)
     with col2:
         st.markdown("""
@@ -591,11 +596,10 @@ def render_landing():
             <h4>🔒 ISO 27001:2022</h4>
             <p>Information security management<br>13 requirements incl. Annex A</p>
         </div>""", unsafe_allow_html=True)
-    with col3:
         st.markdown("""
         <div class="feature-card">
-            <h4>🇺🇸 NIST CSF 2.0</h4>
-            <p>Cybersecurity programme maturity<br>6 functions · GV ID PR DE RS RC</p>
+            <h4>🛡️ SOC 2 (TSC 2017)</h4>
+            <p>SaaS & cloud service providers<br>11 Trust Service Criteria</p>
         </div>""", unsafe_allow_html=True)
 
     st.markdown("""
