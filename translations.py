@@ -248,9 +248,11 @@ def t(key: str, **kwargs: object) -> str:
     """Return the translated string for key in the current language."""
     import streamlit as st  # imported here to keep module testable without Streamlit context
     lang = st.session_state.get("_lang", "sv")
-    text = (
-        TRANSLATIONS.get(lang, {}).get(key)
-        or TRANSLATIONS["en"].get(key)
-        or f"[{key}]"
-    )
+    sv = TRANSLATIONS["sv"]
+    en = TRANSLATIONS["en"]
+    text = sv.get(key) if lang == "sv" else en.get(key)
+    if text is None:
+        text = en.get(key) if lang == "sv" else sv.get(key)
+    if text is None:
+        text = f"[{key}]"
     return text.format(**kwargs) if kwargs else text
