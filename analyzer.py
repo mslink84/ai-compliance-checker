@@ -82,7 +82,7 @@ def analyse_document(
 
     Args:
         document_text:  Extracted plain text from the uploaded policy/document.
-        framework_name: One of "GDPR", "ISO 27001", "NIST CSF 2.0".
+        framework_name: One of "GDPR", "ISO 27001", "NIST CSF 2.0", "SOC 2".
 
     Returns:
         ComplianceAnalysis Pydantic model.
@@ -312,6 +312,7 @@ overall_score = round((compliant_count + 0.5 × partial_count) / total_requireme
 
 === OUTPUT FORMAT ===
 Respond with ONLY a single valid JSON object. No markdown, no prose, no code fences.
+All text fields (finding, recommendation, document_summary, key_gaps, priority_actions) must be written in English regardless of the language of the uploaded document.
 The JSON must match this schema exactly:
 {schema_str}"""
 
