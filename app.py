@@ -13,7 +13,6 @@ from __future__ import annotations
 import io
 import os
 import traceback
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import streamlit as st
 
@@ -401,23 +400,19 @@ def run_analysis(document_text: str, framework: str):
         analyses: dict[str, ComplianceAnalysis] = {}
         errors: dict[str, str] = {}
 
-        with st.spinner(t("spinner_all")):
-            with ThreadPoolExecutor(max_workers=3) as executor:
-                futures = {
-                    executor.submit(analyse_document, document_text, fw): fw
-                    for fw in frameworks
-                }
-                try:
-                    for future in as_completed(futures, timeout=120):
-                        fw = futures[future]
-                        try:
-                            analyses[fw] = future.result()
-                        except Exception:
-                            errors[fw] = traceback.format_exc()
-                except TimeoutError:
-                    for future, fw in futures.items():
-                        if fw not in analyses and fw not in errors:
-                            errors[fw] = "Analysis timed out after 120 seconds."
+        progress_bar = st.progress(0)
+        status_msg   = st.empty()
+
+        for i, fw in enumerate(frameworks):
+            status_msg.info(t("spinner_fw", fw=fw, n=i + 1, total=len(frameworks)))
+            try:
+                analyses[fw] = analyse_document(document_text, fw)
+            except Exception:
+                errors[fw] = traceback.format_exc()
+            progress_bar.progress((i + 1) / len(frameworks))
+
+        progress_bar.empty()
+        status_msg.empty()
 
         for fw, tb in errors.items():
             st.error(t("analysis_failed_fw", fw=fw))

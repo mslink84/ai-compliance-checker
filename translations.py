@@ -21,7 +21,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "public_features_label":"**Vad verktyget gör:**",
         "public_features":      "- Identifierar gap mot regulatoriska krav\n- Poängsätter efterlevnad 0–100\n- Visar risknivå och AI-konfidans per krav\n- Exporterar en professionell PDF-rapport\n- Stöder dokument upp till 10 MB (PDF, DOCX, TXT)",
         "public_built_heading": "#### Om projektet",
-        "public_built_text":    "Byggt av **Mikael Sundberg** som ett portfolioprojekt inom GRC och AI-assisterad compliance-analys. Projektet demonstrerar praktisk förståelse för GDPR, ISO 27001, NIST CSF 2.0 och SOC 2, kombinerat med moderna AI-verktyg.\n\n🌐 [www.msun.se](https://www.msun.se) · 💼 [LinkedIn](https://www.linkedin.com/in/mikaelsundberg)",
+        "public_built_text":    "Byggt av **Mikael Sundberg** som ett portfolioprojekt inom GRC och AI-assisterad compliance-analys. Projektet demonstrerar praktisk förståelse för GDPR, ISO 27001, NIST CSF 2.0 och SOC 2, kombinerat med moderna AI-verktyg.\n\n🌐 [www.msun.se](https://www.msun.se)",
         "public_gate_heading":  "#### 🔐 Skyddad demo",
         "public_gate_text":     "Appen kräver en åtkomstkod. Kontakta Mikael Sundberg via [www.msun.se](https://www.msun.se) för att begära åtkomst.",
 
@@ -63,7 +63,8 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
 
         # ── Buttons / spinners ────────────────────────────────────────────────────
         "analyse_btn":          "Kör compliance-analys",
-        "spinner_all":          "Analyserar mot alla ramverk parallellt… kan ta 60–90 sekunder.",
+        "spinner_all":          "Analyserar mot alla ramverk… kan ta 60–90 sekunder.",
+        "spinner_fw":           "Analyserar mot {fw}… ({n}/{total})",
         "spinner_single":       "Analyserar dokument mot {fw}… kan ta 30–60 sekunder.",
 
         # ── Analysis results messages ─────────────────────────────────────────────
@@ -138,7 +139,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "public_features_label":"**What this tool does:**",
         "public_features":      "- Identifies gaps against regulatory requirements\n- Scores compliance 0–100\n- Shows risk level and AI confidence per requirement\n- Exports a professional PDF report\n- Supports documents up to 10 MB (PDF, DOCX, TXT)",
         "public_built_heading": "#### About this project",
-        "public_built_text":    "Built by **Mikael Sundberg** as a portfolio project in GRC and AI-assisted compliance analysis. Demonstrates practical understanding of GDPR, ISO 27001, NIST CSF 2.0, and SOC 2 combined with modern AI tooling.\n\n🌐 [www.msun.se](https://www.msun.se) · 💼 [LinkedIn](https://www.linkedin.com/in/mikaelsundberg)",
+        "public_built_text":    "Built by **Mikael Sundberg** as a portfolio project in GRC and AI-assisted compliance analysis. Demonstrates practical understanding of GDPR, ISO 27001, NIST CSF 2.0, and SOC 2 combined with modern AI tooling.\n\n🌐 [www.msun.se](https://www.msun.se)",
         "public_gate_heading":  "#### 🔐 Access-protected demo",
         "public_gate_text":     "This app requires an access code. Contact Mikael Sundberg via [www.msun.se](https://www.msun.se) to request access.",
 
@@ -180,7 +181,8 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
 
         # ── Buttons / spinners ────────────────────────────────────────────────────
         "analyse_btn":          "Run Compliance Analysis",
-        "spinner_all":          "Analysing against all frameworks in parallel… this may take 60–90 seconds.",
+        "spinner_all":          "Analysing against all frameworks… this may take 60–90 seconds.",
+        "spinner_fw":           "Analysing against {fw}… ({n}/{total})",
         "spinner_single":       "Analysing document against {fw}… this may take 30–60 seconds.",
 
         # ── Analysis results messages ─────────────────────────────────────────────
