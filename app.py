@@ -5,6 +5,7 @@ Run with:
     streamlit run app.py
 
 Requires ANTHROPIC_API_KEY environment variable (or Streamlit Cloud secret).
+Swedish is the default UI language; switch via the flag button at the top.
 """
 
 from __future__ import annotations
@@ -19,17 +20,11 @@ import streamlit as st
 from analyzer import FRAMEWORK_FILES, MAX_DOC_CHARS, ComplianceAnalysis, analyse_document
 from guard import check_request, record_run, require_access_code
 from report_generator import generate_pdf
+from translations import t
 
 # ── Constants ────────────────────────────────────────────────────────────────────
 
 MAX_FILE_SIZE_MB = 10
-
-DISCLAIMER = (
-    "**AI-assisted analysis** — results reflect only what is explicitly stated in the "
-    "uploaded document. Controls implemented through verbal processes, separate systems, "
-    "or supporting documentation not included in this upload will not be detected. "
-    "Always validate findings with a qualified compliance professional."
-)
 
 # ── CSS injection ─────────────────────────────────────────────────────────────────
 
@@ -147,6 +142,21 @@ def _inject_css():
         color: var(--tx) !important;
     }
     .stButton > button[kind="secondary"]:hover {
+        border-color: var(--accent) !important;
+        color: var(--accent2) !important;
+    }
+
+    /* ── Language toggle button ──────────────────────────────────── */
+    .lang-btn > button {
+        background-color: transparent !important;
+        border: 1px solid var(--border) !important;
+        color: var(--tx2) !important;
+        font-size: .8rem !important;
+        min-height: 32px !important;
+        padding: .2rem .75rem !important;
+        border-radius: 20px !important;
+    }
+    .lang-btn > button:hover {
         border-color: var(--accent) !important;
         color: var(--accent2) !important;
     }
@@ -350,6 +360,21 @@ st.set_page_config(
 
 _inject_css()
 
+# ── Language initialisation (must happen before any t() call) ─────────────────────
+
+if "_lang" not in st.session_state:
+    st.session_state["_lang"] = "sv"   # Swedish default
+
+# ── Language toggle (always visible – top-right corner) ───────────────────────────
+
+_, _col_lang = st.columns([11, 1])
+with _col_lang:
+    st.markdown('<div class="lang-btn">', unsafe_allow_html=True)
+    if st.button(t("lang_toggle"), key="_lang_btn", help="Switch language / Byt språk"):
+        st.session_state["_lang"] = "en" if st.session_state["_lang"] == "sv" else "sv"
+        st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+
 
 # ── Helper functions ──────────────────────────────────────────────────────────────
 
@@ -367,13 +392,8 @@ def extract_text(file_bytes: bytes, file_name: str) -> str:
 
 def run_analysis(document_text: str, framework: str):
     """Call Claude, store result in session_state, then render."""
-    # Guard: API key must be set before any API call
     if not os.environ.get("ANTHROPIC_API_KEY"):
-        st.error(
-            "ANTHROPIC_API_KEY is not set. "
-            "Add it under **Settings → Secrets** in Streamlit Cloud, "
-            "or set it as an environment variable before running locally."
-        )
+        st.error(t("api_key_missing"))
         st.stop()
 
     if framework == "All Frameworks":
@@ -381,7 +401,7 @@ def run_analysis(document_text: str, framework: str):
         analyses: dict[str, ComplianceAnalysis] = {}
         errors: dict[str, str] = {}
 
-        with st.spinner("Analysing against all frameworks in parallel… this may take 60–90 seconds."):
+        with st.spinner(t("spinner_all")):
             with ThreadPoolExecutor(max_workers=3) as executor:
                 futures = {
                     executor.submit(analyse_document, document_text, fw): fw
@@ -395,7 +415,7 @@ def run_analysis(document_text: str, framework: str):
                         errors[fw] = traceback.format_exc()
 
         for fw, tb in errors.items():
-            st.error(f"Analysis failed for {fw}. See details below.")
+            st.error(t("analysis_failed_fw", fw=fw))
             st.code(tb)
 
         if not analyses:
@@ -404,22 +424,22 @@ def run_analysis(document_text: str, framework: str):
         st.session_state["analyses"] = analyses
         st.session_state.pop("analysis", None)
         record_run(document_text)
-        st.success(f"Analysis complete! ({len(analyses)}/{len(frameworks)} frameworks)")
+        st.success(t("analysis_complete_all", done=len(analyses), total=len(frameworks)))
         render_all_results(analyses)
 
     else:
-        with st.spinner(f"Analysing document against {framework}… this may take 30–60 seconds."):
+        with st.spinner(t("spinner_single", fw=framework)):
             try:
                 analysis: ComplianceAnalysis = analyse_document(document_text, framework)
                 st.session_state["analysis"] = analysis
                 st.session_state.pop("analyses", None)
             except Exception:
-                st.error("Analysis failed. See details below.")
+                st.error(t("analysis_failed"))
                 st.code(traceback.format_exc())
                 st.stop()
 
         record_run(document_text)
-        st.success("Analysis complete!")
+        st.success(t("analysis_complete"))
         render_results(analysis)
 
 
@@ -435,28 +455,25 @@ def render_results(analysis: ComplianceAnalysis):
     """Render the full analysis UI for a single framework."""
 
     # ── Disclaimer ────────────────────────────────────────────────────────────────
-    st.info(DISCLAIMER)
+    st.info(t("disclaimer"))
 
     # ── Truncation / chunking notice ──────────────────────────────────────────────
     if getattr(analysis, "truncated", False):
-        st.warning(
-            "This document exceeded 14,000 characters and was analysed in multiple sections. "
-            "Results have been merged automatically — consider splitting the document for highest accuracy."
-        )
+        st.warning(t("truncation_warning"))
 
     # ── Score banner ──────────────────────────────────────────────────────────────
     score = analysis.overall_score
     if score >= 75:
-        label, colour = "Good", "#3fb950"
+        label, colour = t("score_good"), "#3fb950"
     elif score >= 50:
-        label, colour = "Needs Improvement", "#d29922"
+        label, colour = t("score_needs_improvement"), "#d29922"
     else:
-        label, colour = "Critical Gaps", "#f85149"
+        label, colour = t("score_critical"), "#f85149"
 
     st.markdown(f"""
     <div class="score-hero">
         <div class="score-num" style="color:{colour}">{score}<span style="font-size:.5em;color:#8b949e">/100</span></div>
-        <div class="score-label">Compliance Score — <strong style="color:{colour}">{label}</strong></div>
+        <div class="score-label">{t("score_label")} — <strong style="color:{colour}">{label}</strong></div>
     </div>
     """, unsafe_allow_html=True)
     st.progress(score / 100)
@@ -467,42 +484,47 @@ def render_results(analysis: ComplianceAnalysis):
     non_compliant = sum(1 for f in analysis.findings if f.status == "Non-compliant")
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Total Requirements", total)
-    c2.metric("Compliant", compliant)
-    c3.metric("Partial", partial)
-    c4.metric("Non-compliant", non_compliant)
+    c1.metric(t("metric_total"), total)
+    c2.metric(t("metric_compliant"), compliant)
+    c3.metric(t("metric_partial"), partial)
+    c4.metric(t("metric_non_compliant"), non_compliant)
 
     # ── Document summary ──────────────────────────────────────────────────────────
-    with st.expander("Document Summary", expanded=True):
+    with st.expander(t("doc_summary"), expanded=True):
         st.write(analysis.document_summary)
 
     # ── Key gaps & priority actions ───────────────────────────────────────────────
     col_gaps, col_actions = st.columns(2)
     with col_gaps:
-        st.subheader("Key Gaps")
+        st.subheader(t("key_gaps"))
         for gap in analysis.key_gaps:
             st.markdown(f"- {gap}")
     with col_actions:
-        st.subheader("Priority Actions")
+        st.subheader(t("priority_actions"))
         for i, action in enumerate(analysis.priority_actions, 1):
             st.markdown(f"{i}. {action}")
 
     st.divider()
 
     # ── Detailed findings ─────────────────────────────────────────────────────────
-    st.subheader("Detailed Findings")
+    st.subheader(t("detailed_findings"))
+
+    # Status values stay English (they come from AI); only display label is translated
+    status_options = ["Compliant", "Partial", "Non-compliant", "Not Applicable"]
+    status_labels  = {s: t(f"status_{s}") for s in status_options}
 
     status_filter = st.multiselect(
-        "Filter by status",
-        ["Compliant", "Partial", "Non-compliant", "Not Applicable"],
+        t("filter_label"),
+        status_options,
         default=["Partial", "Non-compliant"],
+        format_func=lambda s: status_labels[s],
         key=f"filter_{analysis.framework_name}",
     )
 
     findings = [f for f in analysis.findings if not status_filter or f.status in status_filter]
 
     if not findings:
-        st.info("No findings match the selected filter.")
+        st.info(t("no_findings"))
     else:
         for finding in findings:
             status_emoji = {
@@ -513,31 +535,31 @@ def render_results(analysis: ComplianceAnalysis):
                 "High": "🔴", "Medium": "🟠", "Low": "🟡", "N/A": "⚪",
             }.get(finding.risk_level, "")
             confidence = getattr(finding, "confidence", None)
-            confidence_str = f"  _(confidence: {confidence}%)_" if confidence is not None else ""
+            confidence_str = f"  _({t('confidence_label')}: {confidence}%)_" if confidence is not None else ""
 
             with st.expander(
                 f"{status_emoji} [{finding.requirement_id}] {finding.requirement_name} "
-                f"— {finding.status} {risk_emoji} {finding.risk_level}{confidence_str}",
+                f"— {t(f'status_{finding.status}')} {risk_emoji} {finding.risk_level}{confidence_str}",
                 expanded=(finding.status == "Non-compliant"),
             ):
                 col_f, col_r = st.columns(2)
                 with col_f:
-                    st.markdown("**Finding**")
+                    st.markdown(t("finding_col"))
                     st.write(finding.finding)
                 with col_r:
-                    st.markdown("**Recommendation**")
+                    st.markdown(t("recommendation_col"))
                     st.write(finding.recommendation)
 
     # ── PDF export ────────────────────────────────────────────────────────────────
     st.divider()
-    st.subheader("Export Report")
+    st.subheader(t("export_heading"))
 
-    if st.button("Generate PDF Report", type="secondary", key=f"pdf_{analysis.framework_name}"):
-        with st.spinner("Generating PDF…"):
+    if st.button(t("pdf_btn"), type="secondary", key=f"pdf_{analysis.framework_name}"):
+        with st.spinner(t("pdf_spinner")):
             pdf_bytes = generate_pdf(analysis)
         filename = f"compliance_report_{analysis.framework_name.replace(' ', '_').lower()}.pdf"
         st.download_button(
-            label="Download PDF",
+            label=t("pdf_download"),
             data=pdf_bytes,
             file_name=filename,
             mime="application/pdf",
@@ -547,66 +569,61 @@ def render_results(analysis: ComplianceAnalysis):
 
 def render_landing():
     """Show instructions before any file is uploaded."""
-    st.markdown("""
+    st.markdown(f"""
     <div style="margin-bottom:2rem">
-        <p style="color:#8b949e;font-size:1rem;margin-top:-.5rem">
-            Upload a policy document and get an instant AI-powered gap analysis against
-            GDPR, ISO 27001, NIST CSF 2.0, or SOC 2.
-        </p>
+        <p style="color:#8b949e;font-size:1rem;margin-top:-.5rem">{t("page_subtitle")}</p>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("#### How it works")
-    st.markdown("""
+    st.markdown(t("how_it_works"))
+    st.markdown(f"""
     <div class="feature-card">
-        <h4>① Select a framework</h4>
-        <p>Choose GDPR, ISO 27001, NIST CSF 2.0, or SOC 2 — or run all four in parallel with <strong>All Frameworks</strong>.</p>
+        <h4>{t("step1_title")}</h4>
+        <p>{t("step1_text")}</p>
     </div>
     <div class="feature-card">
-        <h4>② Upload your document</h4>
-        <p>PDF, Word (.docx), or plain text. Up to 10 MB. Long documents are split and merged automatically.</p>
+        <h4>{t("step2_title")}</h4>
+        <p>{t("step2_text")}</p>
     </div>
     <div class="feature-card">
-        <h4>③ Get your gap analysis</h4>
-        <p>Every requirement is assessed — Compliant / Partial / Non-compliant — with risk level, confidence score, and a concrete recommendation.</p>
+        <h4>{t("step3_title")}</h4>
+        <p>{t("step3_text")}</p>
     </div>
     <div class="feature-card">
-        <h4>④ Download the PDF report</h4>
-        <p>Export a professional gap analysis report to share with your team or include in audit documentation.</p>
+        <h4>{t("step4_title")}</h4>
+        <p>{t("step4_text")}</p>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("#### Supported Frameworks")
+    st.markdown(t("supported_fw"))
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("""
+        st.markdown(f"""
         <div class="feature-card">
             <h4>🇪🇺 GDPR</h4>
-            <p>Data protection & privacy<br>12 requirements · EU organisations</p>
+            <p>{t("fw_gdpr_desc")}</p>
         </div>""", unsafe_allow_html=True)
-        st.markdown("""
+        st.markdown(f"""
         <div class="feature-card">
             <h4>🇺🇸 NIST CSF 2.0</h4>
-            <p>Cybersecurity programme maturity<br>6 functions · GV ID PR DE RS RC</p>
+            <p>{t("fw_nist_desc")}</p>
         </div>""", unsafe_allow_html=True)
     with col2:
-        st.markdown("""
+        st.markdown(f"""
         <div class="feature-card">
             <h4>🔒 ISO 27001:2022</h4>
-            <p>Information security management<br>13 requirements incl. Annex A</p>
+            <p>{t("fw_iso_desc")}</p>
         </div>""", unsafe_allow_html=True)
-        st.markdown("""
+        st.markdown(f"""
         <div class="feature-card">
             <h4>🛡️ SOC 2 (TSC 2017)</h4>
-            <p>SaaS & cloud service providers<br>11 Trust Service Criteria</p>
+            <p>{t("fw_soc2_desc")}</p>
         </div>""", unsafe_allow_html=True)
 
-    st.markdown("""
+    st.markdown(f"""
     <div style="margin-top:1.5rem;padding:1rem 1.25rem;background:#1c2128;border:1px solid #30363d;
                 border-left:4px solid #388bfd;border-radius:8px;color:#8b949e;font-size:.88rem">
-        <strong style="color:#79b8ff">ℹ️ Limitations</strong> — This tool analyses only what is written in the
-        uploaded document. Verbal policies, undocumented controls, and live system configurations are not assessed.
-        Results are a structured starting point, not a formal audit.
+        <strong style="color:#79b8ff">{t("limitations_title")}</strong> — {t("limitations_text")}
     </div>
     """, unsafe_allow_html=True)
 
@@ -617,20 +634,13 @@ with st.sidebar:
     st.title("AI Compliance Checker")
     st.caption("Mikael Sundberg · [www.msun.se](https://www.msun.se)")
     st.divider()
-    st.markdown(
-        """
-        **What this tool does:**
-        - Analyses policy documents against compliance frameworks
-        - Scores compliance (0–100)
-        - Shows risk level and AI confidence per finding
-        - Exports a professional PDF report
-
-        **Supported frameworks:**
-        GDPR · ISO 27001 · NIST CSF 2.0 · SOC 2
-        """
-    )
+    st.markdown(t("sidebar_what"))
+    st.markdown(t("sidebar_bullets"))
+    st.markdown("")
+    st.markdown(t("sidebar_fw_label"))
+    st.markdown("GDPR · ISO 27001 · NIST CSF 2.0 · SOC 2")
     if not os.environ.get("ANTHROPIC_API_KEY"):
-        st.warning("ANTHROPIC_API_KEY not set. Add it before running.")
+        st.warning(t("sidebar_api_warning"))
 
 
 # ── Main area ─────────────────────────────────────────────────────────────────────
@@ -647,18 +657,19 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── Step 1 + 2: Framework selector and file uploader always in main area ──────────
+# ── Step 1 + 2: Framework selector and file uploader ──────────────────────────────
 
 col_fw, col_up = st.columns([1, 2])
 with col_fw:
     framework = st.selectbox(
-        "① Compliance framework",
+        t("fw_selector_label"),
         options=["All Frameworks"] + list(FRAMEWORK_FILES.keys()),
-        help="Choose a framework or run all at once.",
+        format_func=lambda x: t("all_frameworks") if x == "All Frameworks" else x,
+        help=t("fw_selector_help"),
     )
 with col_up:
     uploaded_file = st.file_uploader(
-        "② Upload document (PDF, DOCX or TXT — max 10 MB)",
+        t("uploader_label"),
         type=["pdf", "txt", "docx"],
         label_visibility="visible",
     )
@@ -670,10 +681,7 @@ if uploaded_file is None:
 else:
     # File size guard
     if uploaded_file.size > MAX_FILE_SIZE_MB * 1024 * 1024:
-        st.error(
-            f"File too large ({uploaded_file.size / 1024 / 1024:.1f} MB). "
-            f"Maximum size is {MAX_FILE_SIZE_MB} MB."
-        )
+        st.error(t("file_too_large", size=uploaded_file.size / 1024 / 1024, max=MAX_FILE_SIZE_MB))
         st.stop()
 
     # Reset cached results when a different file is uploaded
@@ -690,34 +698,23 @@ else:
     if not document_text.strip():
         name_lower = uploaded_file.name.lower()
         if name_lower.endswith(".pdf"):
-            hint = (
-                "The PDF appears to contain no extractable text. "
-                "This usually means it is a **scanned / image-only PDF**. "
-                "Try: open in Adobe Acrobat → Save As → Word or Text, then re-upload."
-            )
+            st.error(t("pdf_no_text"))
         elif name_lower.endswith(".docx"):
-            hint = (
-                "Could not read the Word file. "
-                "Make sure it is a standard .docx file (not .doc or password-protected)."
-            )
+            st.error(t("docx_error"))
         else:
-            hint = "The file appears to be empty or contains no readable text."
-        st.error(hint)
+            st.error(t("file_empty"))
         st.stop()
 
     col1, col2 = st.columns([2, 1])
     with col1:
-        base_msg = f"Document loaded: **{uploaded_file.name}** ({len(document_text):,} characters)"
         if len(document_text) > MAX_DOC_CHARS:
-            st.warning(
-                f"{base_msg}  \nDocument exceeds {MAX_DOC_CHARS:,} characters — "
-                "it will be analysed in chunks and results merged automatically."
-            )
+            st.warning(t("doc_chunked", name=uploaded_file.name,
+                         chars=len(document_text), max=MAX_DOC_CHARS))
         else:
-            st.success(base_msg)
+            st.success(t("doc_loaded", name=uploaded_file.name, chars=len(document_text)))
     with col2:
         analyse_btn = st.button(
-            "Run Compliance Analysis", type="primary", use_container_width=True
+            t("analyse_btn"), type="primary", use_container_width=True
         )
 
     if analyse_btn:

@@ -15,6 +15,8 @@ from datetime import date
 
 import streamlit as st
 
+from translations import t
+
 logger = logging.getLogger(__name__)
 
 # ── Configuration ─────────────────────────────────────────────────────────────────
@@ -31,7 +33,7 @@ MAX_AUTH_ATTEMPTS     = 3         # wrong access codes before session is locked 
 def _access_code() -> str:
     """
     Load the valid access code.
-    Priority: st.secrets["ACCESS_CODE"] → env var ACCESS_CODE → built-in default.
+    Priority: st.secrets["ACCESS_CODE"] → env var ACCESS_CODE → empty string.
     To change without touching code, set ACCESS_CODE in Streamlit Cloud secrets.
     """
     try:
@@ -75,24 +77,21 @@ def require_access_code() -> bool:
     # Hard lockout after too many wrong attempts
     if st.session_state["_g_auth_fails"] >= MAX_AUTH_ATTEMPTS:
         logger.warning("guard: session locked – too many failed attempts")
-        st.error(
-            "Too many incorrect attempts — this session is locked. "
-            "Open a new browser tab to try again, or contact "
-            "[Mikael Sundberg](https://www.msun.se) to request access."
-        )
+        st.error(t("gate_locked"))
         return False
 
-    st.markdown("Please enter the access code to continue.")
-    code = st.text_input("Access code", type="password", key="_gate_input",
-                         placeholder="Enter access code…")
+    st.markdown(t("gate_prompt"))
+    code = st.text_input(
+        t("gate_input_label"),
+        type="password",
+        key="_gate_input",
+        placeholder="••••••••",
+    )
 
-    if st.button("Continue", key="_gate_btn"):
+    if st.button(t("gate_btn"), key="_gate_btn"):
         valid_code = _access_code()
         if not valid_code:
-            st.error(
-                "Access code is not configured on this server. "
-                "Contact [Mikael Sundberg](https://www.msun.se) to request access."
-            )
+            st.error(t("gate_not_configured"))
             return False
         if code == valid_code:
             st.session_state["_g_authed"] = True
@@ -105,7 +104,7 @@ def require_access_code() -> bool:
             remaining = MAX_AUTH_ATTEMPTS - fails
             logger.warning("guard: access denied – wrong code (attempt %d/%d)", fails, MAX_AUTH_ATTEMPTS)
             if remaining > 0:
-                st.error(f"Incorrect access code. {remaining} attempt(s) remaining.")
+                st.error(t("gate_wrong_n", n=remaining))
             else:
                 st.rerun()  # triggers the lockout message above
 
@@ -207,4 +206,5 @@ def _refresh_daily_counter() -> None:
 
 
 def _md5(text: str) -> str:
+    # MD5 used for non-cryptographic duplicate detection only
     return hashlib.md5(text.encode("utf-8", errors="replace")).hexdigest()
