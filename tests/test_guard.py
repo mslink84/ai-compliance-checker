@@ -164,3 +164,25 @@ def test_record_run_caps_hash_history():
         _fake_ss["_g_last_ts"] = 0.0  # bypass cooldown check in _init
         guard.record_run(f"document number {i} " * 10)
     assert len(_fake_ss["_g_hashes"]) == guard.MAX_HASH_HISTORY
+
+
+# ── _access_code – empty / unconfigured ──────────────────────────────────────────
+
+def test_access_code_returns_empty_when_unset(monkeypatch):
+    """When neither st.secrets nor env var is configured, _access_code returns ''."""
+    import os
+    monkeypatch.delenv("ACCESS_CODE", raising=False)
+    _st_mock.secrets.__getitem__.side_effect = KeyError("ACCESS_CODE")
+    result = guard._access_code()
+    assert result == ""
+    _st_mock.secrets.__getitem__.side_effect = None  # restore
+
+
+def test_access_code_reads_from_env(monkeypatch):
+    """_access_code() returns the ACCESS_CODE env var when st.secrets is unavailable."""
+    import os
+    monkeypatch.setenv("ACCESS_CODE", "test-secret-123")
+    _st_mock.secrets.__getitem__.side_effect = KeyError("ACCESS_CODE")
+    result = guard._access_code()
+    assert result == "test-secret-123"
+    _st_mock.secrets.__getitem__.side_effect = None  # restore

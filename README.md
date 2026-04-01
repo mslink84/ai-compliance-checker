@@ -86,7 +86,7 @@ streamlit run app.py
 pytest tests/ -v
 ```
 
-38 tests covering: access protection logic, framework JSON loading (incl. SOC 2), Pydantic model validation, text extraction (TXT/DOCX/PDF), and PDF generation.
+53 tests covering: access protection logic, document chunking, framework JSON loading (incl. SOC 2), Pydantic model validation, text extraction (TXT/DOCX/PDF), and PDF generation.
 
 ---
 

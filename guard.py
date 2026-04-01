@@ -87,7 +87,14 @@ def require_access_code() -> bool:
                          placeholder="Enter access code…")
 
     if st.button("Continue", key="_gate_btn"):
-        if code == _access_code():
+        valid_code = _access_code()
+        if not valid_code:
+            st.error(
+                "Access code is not configured on this server. "
+                "Contact [Mikael Sundberg](https://www.msun.se) to request access."
+            )
+            return False
+        if code == valid_code:
             st.session_state["_g_authed"] = True
             st.session_state["_g_auth_fails"] = 0
             logger.info("guard: access granted")
