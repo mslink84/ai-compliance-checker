@@ -123,7 +123,7 @@ def _call_claude(
         "Respond with ONLY valid JSON – no markdown fences, no explanation."
     )
 
-    client = anthropic.Anthropic()
+    client = anthropic.Anthropic(timeout=90.0)   # 90 s hard deadline per API call
 
     try:
         response = client.messages.create(
@@ -139,6 +139,11 @@ def _call_claude(
     except anthropic.RateLimitError as exc:
         raise RuntimeError(
             "Claude API rate limit reached. Please wait a moment and try again."
+        ) from exc
+    except anthropic.APITimeoutError as exc:
+        raise RuntimeError(
+            "The Claude API did not respond in time (90 s). "
+            "Try again — Anthropic may be experiencing high load."
         ) from exc
     except anthropic.APIConnectionError as exc:
         raise RuntimeError(

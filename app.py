@@ -407,12 +407,17 @@ def run_analysis(document_text: str, framework: str):
                     executor.submit(analyse_document, document_text, fw): fw
                     for fw in frameworks
                 }
-                for future in as_completed(futures):
-                    fw = futures[future]
-                    try:
-                        analyses[fw] = future.result()
-                    except Exception:
-                        errors[fw] = traceback.format_exc()
+                try:
+                    for future in as_completed(futures, timeout=120):
+                        fw = futures[future]
+                        try:
+                            analyses[fw] = future.result()
+                        except Exception:
+                            errors[fw] = traceback.format_exc()
+                except TimeoutError:
+                    for future, fw in futures.items():
+                        if fw not in analyses and fw not in errors:
+                            errors[fw] = "Analysis timed out after 120 seconds."
 
         for fw, tb in errors.items():
             st.error(t("analysis_failed_fw", fw=fw))
@@ -755,13 +760,11 @@ else:
             st.error(t("file_empty"))
         st.stop()
 
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        if len(document_text) > MAX_DOC_CHARS:
-            st.warning(t("doc_chunked", name=uploaded_file.name,
-                         chars=len(document_text), max=MAX_DOC_CHARS))
-        else:
-            st.success(t("doc_loaded", name=uploaded_file.name, chars=len(document_text)))
+    if len(document_text) > MAX_DOC_CHARS:
+        st.warning(t("doc_chunked", name=uploaded_file.name,
+                     chars=len(document_text), max=MAX_DOC_CHARS))
+    else:
+        st.success(t("doc_loaded", name=uploaded_file.name, chars=len(document_text)))
 
     # ── GDPR data processing notice ───────────────────────────────────────────────
     st.markdown(f"""
@@ -771,13 +774,10 @@ else:
     </div>
     """, unsafe_allow_html=True)
 
-    data_consent = st.checkbox(
-        t("data_consent_label"),
-        key="_data_consent",
-        value=st.session_state.get("_data_consent", False),
-    )
+    data_consent = st.checkbox(t("data_consent_label"), key="_data_consent")
 
-    with col2:
+    _, col_btn = st.columns([3, 1])
+    with col_btn:
         analyse_btn = st.button(
             t("analyse_btn"), type="primary", use_container_width=True
         )
