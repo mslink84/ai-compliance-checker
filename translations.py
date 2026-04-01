@@ -15,6 +15,22 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         # ── Page / title ──────────────────────────────────────────────────────────
         "page_subtitle":        "Ladda upp ett policydokument och få en omedelbar AI-driven gapanalys mot GDPR, ISO 27001, NIST CSF 2.0 eller SOC 2.",
 
+        # ── Public landing (unauthenticated) ──────────────────────────────────────
+        "public_tagline":       "Automatiserad AI-driven compliance-gapanalys",
+        "public_hero_text":     "Analysera policydokument mot GDPR, ISO 27001, NIST CSF 2.0 och SOC 2 på sekunder. Få strukturerade fynd, risknivåer, konfidanspoäng och en professionell PDF-rapport.",
+        "public_features_label":"**Vad verktyget gör:**",
+        "public_features":      "- Identifierar gap mot regulatoriska krav\n- Poängsätter efterlevnad 0–100\n- Visar risknivå och AI-konfidans per krav\n- Exporterar en professionell PDF-rapport\n- Stöder dokument upp till 10 MB (PDF, DOCX, TXT)",
+        "public_built_heading": "#### Om projektet",
+        "public_built_text":    "Byggt av **Mikael Sundberg** som ett portfolioprojekt inom GRC och AI-assisterad compliance-analys. Projektet demonstrerar praktisk förståelse för GDPR, ISO 27001, NIST CSF 2.0 och SOC 2, kombinerat med moderna AI-verktyg.\n\n🌐 [www.msun.se](https://www.msun.se) · 💼 [LinkedIn](https://www.linkedin.com/in/mikaelsundberg)",
+        "public_gate_heading":  "#### 🔐 Åtkodsbelagd demo",
+        "public_gate_text":     "Appen kräver en åtkodstkod. Kontakta Mikael Sundberg via [www.msun.se](https://www.msun.se) för att begära åtkomst.",
+
+        # ── GDPR data processing notice ───────────────────────────────────────────
+        "data_notice_heading":  "ℹ️ Databehandling",
+        "data_notice_text":     "Ditt dokument skickas till **Anthropic Claude API** för analys. Vi lagrar **inga** dokument. Anthropic kan använda API-anrop för att förbättra sina modeller enligt deras [användningsvillkor](https://www.anthropic.com/legal/aup). Ladda inte upp dokument med känsliga personuppgifter eller affärshemligheter.",
+        "data_consent_label":   "Jag förstår och accepterar att mitt dokument behandlas av Anthropic Claude API",
+        "data_consent_required":"Du måste godkänna databehandlingen för att köra analysen.",
+
         # ── Access gate (guard.py) ────────────────────────────────────────────────
         "gate_prompt":          "Ange åtkomstkod för att fortsätta.",
         "gate_input_label":     "Åtkomstkod",
@@ -115,6 +131,22 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
 
         # ── Page / title ──────────────────────────────────────────────────────────
         "page_subtitle":        "Upload a policy document and get an instant AI-powered gap analysis against GDPR, ISO 27001, NIST CSF 2.0, or SOC 2.",
+
+        # ── Public landing (unauthenticated) ──────────────────────────────────────
+        "public_tagline":       "Automated AI-powered compliance gap analysis",
+        "public_hero_text":     "Analyse policy documents against GDPR, ISO 27001, NIST CSF 2.0, and SOC 2 in seconds. Get structured findings, risk ratings, confidence scores, and a professional PDF report.",
+        "public_features_label":"**What this tool does:**",
+        "public_features":      "- Identifies gaps against regulatory requirements\n- Scores compliance 0–100\n- Shows risk level and AI confidence per requirement\n- Exports a professional PDF report\n- Supports documents up to 10 MB (PDF, DOCX, TXT)",
+        "public_built_heading": "#### About this project",
+        "public_built_text":    "Built by **Mikael Sundberg** as a portfolio project in GRC and AI-assisted compliance analysis. Demonstrates practical understanding of GDPR, ISO 27001, NIST CSF 2.0, and SOC 2 combined with modern AI tooling.\n\n🌐 [www.msun.se](https://www.msun.se) · 💼 [LinkedIn](https://www.linkedin.com/in/mikaelsundberg)",
+        "public_gate_heading":  "#### 🔐 Access-protected demo",
+        "public_gate_text":     "This app requires an access code. Contact Mikael Sundberg via [www.msun.se](https://www.msun.se) to request access.",
+
+        # ── GDPR data processing notice ───────────────────────────────────────────
+        "data_notice_heading":  "ℹ️ Data processing",
+        "data_notice_text":     "Your document is sent to **Anthropic Claude API** for analysis. We store **no** documents. Anthropic may use API calls to improve their models per their [usage policy](https://www.anthropic.com/legal/aup). Do not upload documents containing sensitive personal data or trade secrets.",
+        "data_consent_label":   "I understand and accept that my document will be processed by Anthropic Claude API",
+        "data_consent_required":"You must accept the data processing terms before running the analysis.",
 
         # ── Access gate (guard.py) ────────────────────────────────────────────────
         "gate_prompt":          "Please enter the access code to continue.",

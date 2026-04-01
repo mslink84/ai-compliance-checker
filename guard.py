@@ -72,8 +72,6 @@ def require_access_code() -> bool:
     if st.session_state["_g_authed"]:
         return True
 
-    st.title("AI Compliance Checker")
-
     # Hard lockout after too many wrong attempts
     if st.session_state["_g_auth_fails"] >= MAX_AUTH_ATTEMPTS:
         logger.warning("guard: session locked – too many failed attempts")

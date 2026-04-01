@@ -567,8 +567,55 @@ def render_results(analysis: ComplianceAnalysis):
         )
 
 
+def render_public_landing():
+    """Public showcase page — visible before authentication."""
+    st.markdown(f"""
+    <div style="padding:.5rem 0 1.5rem">
+        <h1 style="margin:0 0 .4rem;background:linear-gradient(90deg,#79b8ff,#4a7fd4);
+                   -webkit-background-clip:text;-webkit-text-fill-color:transparent">
+            🛡️ AI Compliance Checker
+        </h1>
+        <p style="color:#79b8ff;font-size:1.05rem;margin:0 0 .5rem;font-weight:600">
+            {t("public_tagline")}
+        </p>
+        <p style="color:#8b949e;font-size:.95rem;margin:0;max-width:680px">
+            {t("public_hero_text")}
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_feat, col_fw = st.columns([1, 1])
+    with col_feat:
+        st.markdown(t("how_it_works"))
+        st.markdown(f"""
+        <div class="feature-card"><h4>{t("step1_title")}</h4><p>{t("step1_text")}</p></div>
+        <div class="feature-card"><h4>{t("step2_title")}</h4><p>{t("step2_text")}</p></div>
+        <div class="feature-card"><h4>{t("step3_title")}</h4><p>{t("step3_text")}</p></div>
+        <div class="feature-card"><h4>{t("step4_title")}</h4><p>{t("step4_text")}</p></div>
+        """, unsafe_allow_html=True)
+    with col_fw:
+        st.markdown(t("supported_fw"))
+        st.markdown(f"""
+        <div class="feature-card"><h4>🇪🇺 GDPR</h4><p>{t("fw_gdpr_desc")}</p></div>
+        <div class="feature-card"><h4>🔒 ISO 27001:2022</h4><p>{t("fw_iso_desc")}</p></div>
+        <div class="feature-card"><h4>🇺🇸 NIST CSF 2.0</h4><p>{t("fw_nist_desc")}</p></div>
+        <div class="feature-card"><h4>🛡️ SOC 2 (TSC 2017)</h4><p>{t("fw_soc2_desc")}</p></div>
+        """, unsafe_allow_html=True)
+
+    st.divider()
+
+    col_about, col_gate = st.columns([1, 1])
+    with col_about:
+        st.markdown(t("public_built_heading"))
+        st.markdown(t("public_built_text"))
+    with col_gate:
+        st.markdown(t("public_gate_heading"))
+        st.markdown(t("public_gate_text"))
+        st.markdown("")
+
+
 def render_landing():
-    """Show instructions before any file is uploaded."""
+    """Show instructions before any file is uploaded (authenticated users)."""
     st.markdown(f"""
     <div style="margin-bottom:2rem">
         <p style="color:#8b949e;font-size:1rem;margin-top:-.5rem">{t("page_subtitle")}</p>
@@ -645,8 +692,11 @@ with st.sidebar:
 
 # ── Main area ─────────────────────────────────────────────────────────────────────
 
-if not require_access_code():
-    st.stop()
+# Show public landing (with access gate) to unauthenticated visitors
+if not st.session_state.get("_g_authed", False):
+    render_public_landing()
+    if not require_access_code():
+        st.stop()
 
 st.markdown("""
 <div style="padding:.5rem 0 1rem">
@@ -712,17 +762,35 @@ else:
                          chars=len(document_text), max=MAX_DOC_CHARS))
         else:
             st.success(t("doc_loaded", name=uploaded_file.name, chars=len(document_text)))
+
+    # ── GDPR data processing notice ───────────────────────────────────────────────
+    st.markdown(f"""
+    <div style="margin:.75rem 0 .5rem;padding:.75rem 1rem;background:#1c2128;border:1px solid #30363d;
+                border-left:4px solid #388bfd;border-radius:8px;font-size:.85rem;color:#8b949e">
+        <strong style="color:#79b8ff">{t("data_notice_heading")}</strong> — {t("data_notice_text")}
+    </div>
+    """, unsafe_allow_html=True)
+
+    data_consent = st.checkbox(
+        t("data_consent_label"),
+        key="_data_consent",
+        value=st.session_state.get("_data_consent", False),
+    )
+
     with col2:
         analyse_btn = st.button(
             t("analyse_btn"), type="primary", use_container_width=True
         )
 
     if analyse_btn:
-        allowed, reason = check_request(document_text)
-        if not allowed:
-            st.error(reason)
+        if not data_consent:
+            st.error(t("data_consent_required"))
         else:
-            run_analysis(document_text, framework)
+            allowed, reason = check_request(document_text)
+            if not allowed:
+                st.error(reason)
+            else:
+                run_analysis(document_text, framework)
     elif "analyses" in st.session_state and framework == "All Frameworks":
         render_all_results(st.session_state["analyses"])
     elif "analysis" in st.session_state and framework != "All Frameworks":
