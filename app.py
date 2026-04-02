@@ -11,7 +11,6 @@ Swedish is the default UI language; switch via the flag button at the top.
 from __future__ import annotations
 
 import os
-import random
 import traceback
 
 import plotly.graph_objects as go
@@ -652,49 +651,6 @@ def render_results(analysis: ComplianceAnalysis):
     )
     st.plotly_chart(donut, use_container_width=True)
 
-    # ── Risk matrix ───────────────────────────────────────────────────────────────
-    _status_x  = {"Non-compliant": 0, "Partial": 1, "Compliant": 2, "Not Applicable": 3}
-    _risk_y    = {"High": 3, "Medium": 2, "Low": 1, "N/A": 0}
-    _dot_color = {"Non-compliant": "#f85149", "Partial": "#d29922",
-                  "Compliant": "#3fb950", "Not Applicable": "#57606a"}
-    random.seed(42)
-
-    rm_fig = go.Figure()
-    for status, color in _dot_color.items():
-        pts = [f for f in analysis.findings if f.status == status]
-        if pts:
-            rm_fig.add_trace(go.Scatter(
-                x=[_status_x[f.status] + random.uniform(-0.18, 0.18) for f in pts],
-                y=[_risk_y[f.risk_level] + random.uniform(-0.18, 0.18) for f in pts],
-                mode="markers",
-                marker=dict(size=10, color=color, opacity=0.85,
-                            line=dict(width=1, color="#0d1117")),
-                name=status,
-                customdata=[[f.requirement_id, f.requirement_name] for f in pts],
-                hovertemplate="<b>%{customdata[0]}</b><br>%{customdata[1]}<extra></extra>",
-            ))
-    rm_fig.update_layout(
-        title=dict(text=t("risk_matrix_title"), font=dict(color="#79b8ff", size=13)),
-        paper_bgcolor="#0d1117", plot_bgcolor="#161b22",
-        font=dict(color="#c9d1d9"),
-        xaxis=dict(
-            tickvals=[0, 1, 2, 3],
-            ticktext=["Non-compliant", "Partial", "Compliant", "N/A"],
-            tickfont=dict(color="#8b949e", size=11),
-            gridcolor="#21262d", range=[-0.5, 3.5], fixedrange=True,
-        ),
-        yaxis=dict(
-            tickvals=[0, 1, 2, 3],
-            ticktext=["N/A", "Low", "Medium", "High"],
-            tickfont=dict(color="#8b949e", size=11),
-            gridcolor="#21262d", range=[-0.5, 3.5], fixedrange=True,
-        ),
-        showlegend=False,
-        margin=dict(l=60, r=20, t=40, b=40),
-        height=280,
-    )
-    st.plotly_chart(rm_fig, use_container_width=True)
-
     # ── Critical findings callout ─────────────────────────────────────────────────
     critical = [f for f in analysis.findings
                 if f.status == "Non-compliant" and f.risk_level == "High"]
@@ -817,10 +773,10 @@ def render_results(analysis: ComplianceAnalysis):
                 use_container_width=True,
             )
     with col_csv:
+        def _esc(s: str) -> str:
+            return '"' + s.replace('"', '""') + '"'
         lines = ["ID,Requirement,Status,Risk,Confidence,Finding,Recommendation"]
         for f in analysis.findings:
-            def _esc(s: str) -> str:
-                return '"' + s.replace('"', '""') + '"'
             lines.append(",".join([
                 _esc(f.requirement_id),
                 _esc(f.requirement_name),
@@ -833,11 +789,12 @@ def render_results(analysis: ComplianceAnalysis):
         csv_bytes = "\n".join(lines).encode()
         csv_name = f"compliance_{analysis.framework_name.replace(' ', '_').lower()}.csv"
         st.download_button(
-            label=t("csv_btn"),
+            label=t("csv_download"),
             data=csv_bytes,
             file_name=csv_name,
             mime="text/csv",
             key=f"csv_{analysis.framework_name}",
+            type="secondary",
             use_container_width=True,
         )
 

@@ -7,6 +7,9 @@ Use t("key") or t("key", var=value) everywhere in the app.
 
 from __future__ import annotations
 
+# Bump this when adding keys so Streamlit Cloud forces a module reload.
+_VERSION = "2.2"
+
 TRANSLATIONS: dict[str, dict[str, str]] = {
     "sv": {
         # ── Language toggle ───────────────────────────────────────────────────────
@@ -76,7 +79,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "critical_empty":           "Inga kritiska fynd identifierade.",
         # ── CSV export ───────────────────────────────────────────────────────────
         "csv_btn":                  "Exportera CSV",
-        "csv_download":             "Ladda ner rapport (.csv)",
+        "csv_download":             "⬇ Ladda ner CSV-rapport",
 
         # ── GDPR data processing notice ───────────────────────────────────────────
         "data_notice_heading":  "ℹ️ Databehandling",
@@ -247,7 +250,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "critical_empty":           "No critical findings identified.",
         # ── CSV export ───────────────────────────────────────────────────────────
         "csv_btn":                  "Export CSV",
-        "csv_download":             "Download report (.csv)",
+        "csv_download":             "⬇ Download CSV Report",
 
         # ── GDPR data processing notice ───────────────────────────────────────────
         "data_notice_heading":  "ℹ️ Data processing",
