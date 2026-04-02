@@ -123,15 +123,18 @@ def _call_claude(
         "Respond with ONLY valid JSON – no markdown fences, no explanation."
     )
 
-    client = anthropic.Anthropic(timeout=90.0)   # 90 s hard deadline per API call
+    # timeout=60 s applies to connection + first byte; streaming keeps the link
+    # alive for the full response so large frameworks (ISO 27001, NIST) don't drop.
+    client = anthropic.Anthropic(timeout=60.0)
 
     try:
-        response = client.messages.create(
+        with client.messages.stream(
             model="claude-sonnet-4-6",
             max_tokens=8000,
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
-        )
+        ) as stream:
+            raw = stream.get_final_text()
     except anthropic.AuthenticationError as exc:
         raise RuntimeError(
             "Invalid API key. Check your ANTHROPIC_API_KEY environment variable."
@@ -142,7 +145,7 @@ def _call_claude(
         ) from exc
     except anthropic.APITimeoutError as exc:
         raise RuntimeError(
-            "The Claude API did not respond in time (90 s). "
+            "The Claude API did not respond in time. "
             "Try again — Anthropic may be experiencing high load."
         ) from exc
     except anthropic.APIConnectionError as exc:
@@ -152,12 +155,10 @@ def _call_claude(
     except anthropic.APIError as exc:
         raise RuntimeError(f"Claude API error: {exc}") from exc
 
-    if not response.content:
+    if not raw:
         raise RuntimeError(
             "Claude returned an empty response. This is unexpected — please try again."
         )
-
-    raw = response.content[0].text.strip()
 
     # Strip markdown code fences if the model added them despite instructions
     if raw.startswith("```"):
