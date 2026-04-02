@@ -41,6 +41,20 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "radar_title":              "Compliance-poäng per ramverk",
         # ── Donut chart ──────────────────────────────────────────────────────────
         "donut_title":              "Fördelning av krav",
+        # ── Risk matrix ──────────────────────────────────────────────────────────
+        "risk_matrix_title":        "Riskmatris — Status × Risknivå",
+        # ── Maturity level ───────────────────────────────────────────────────────
+        "maturity_heading":         "Mognadsnivå",
+        "maturity_1":               "Nivå 1 – Initial",
+        "maturity_2":               "Nivå 2 – Utvecklande",
+        "maturity_3":               "Nivå 3 – Definierad",
+        "maturity_4":               "Nivå 4 – Hanterad",
+        "maturity_5":               "Nivå 5 – Optimerad",
+        "maturity_desc_1":          "Inga formella processer. Reaktiv hantering.",
+        "maturity_desc_2":          "Vissa kontroller definierade, inkonsekvent tillämpade.",
+        "maturity_desc_3":          "Processer dokumenterade och delvis implementerade.",
+        "maturity_desc_4":          "Konsekvent implementation med mätning och uppföljning.",
+        "maturity_desc_5":          "Kontinuerlig förbättring. Branschledande säkerhetsposition.",
         # ── Critical findings ────────────────────────────────────────────────────
         "critical_heading":         "🚨 Kritiska fynd — Hög risk · Ej uppfylld",
         "critical_empty":           "Inga kritiska fynd identifierade.",
@@ -182,6 +196,20 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "radar_title":              "Compliance Score per Framework",
         # ── Donut chart ──────────────────────────────────────────────────────────
         "donut_title":              "Requirements Distribution",
+        # ── Risk matrix ──────────────────────────────────────────────────────────
+        "risk_matrix_title":        "Risk Matrix — Status × Risk Level",
+        # ── Maturity level ───────────────────────────────────────────────────────
+        "maturity_heading":         "Maturity Level",
+        "maturity_1":               "Level 1 – Initial",
+        "maturity_2":               "Level 2 – Developing",
+        "maturity_3":               "Level 3 – Defined",
+        "maturity_4":               "Level 4 – Managed",
+        "maturity_5":               "Level 5 – Optimized",
+        "maturity_desc_1":          "No formal processes. Purely reactive.",
+        "maturity_desc_2":          "Some controls defined, inconsistently applied.",
+        "maturity_desc_3":          "Processes documented and partially implemented.",
+        "maturity_desc_4":          "Consistent implementation, measured and monitored.",
+        "maturity_desc_5":          "Continuous improvement. Industry-leading security posture.",
         # ── Critical findings ────────────────────────────────────────────────────
         "critical_heading":         "🚨 Critical Findings — High Risk · Non-compliant",
         "critical_empty":           "No critical findings identified.",
