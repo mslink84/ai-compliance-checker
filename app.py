@@ -525,8 +525,57 @@ def render_results(analysis: ComplianceAnalysis):
     if getattr(analysis, "truncated", False):
         st.warning(t("truncation_warning"))
 
+    # ── Executive summary card ───────────────────────────────────────────────────
+    score        = analysis.overall_score
+    _nc_high     = sum(1 for f in analysis.findings if f.status == "Non-compliant" and f.risk_level == "High")
+    _nc_med      = sum(1 for f in analysis.findings if f.status == "Non-compliant" and f.risk_level == "Medium")
+    _partial_ct  = sum(1 for f in analysis.findings if f.status == "Partial")
+    _compliant_ct= sum(1 for f in analysis.findings if f.status == "Compliant")
+    _top_action  = analysis.priority_actions[0] if analysis.priority_actions else "—"
+
+    _es_levels = [(20,"maturity_1","#f85149"),(40,"maturity_2","#d29922"),
+                  (60,"maturity_3","#e3b341"),(80,"maturity_4","#3fb950"),(100,"maturity_5","#58a6ff")]
+    _es_m_idx  = next(i for i,(thr,*_) in enumerate(_es_levels) if score <= thr)
+    _, _es_m_key, _es_m_col = _es_levels[_es_m_idx]
+
+    if score >= 75:
+        _es_score_col = "#3fb950"
+    elif score >= 50:
+        _es_score_col = "#d29922"
+    else:
+        _es_score_col = "#f85149"
+
+    st.markdown(f"""
+    <div style="background:#161b22;border:1px solid #30363d;border-left:4px solid #4a7fd4;
+                border-radius:10px;padding:1.2rem 1.4rem;margin-bottom:1.2rem">
+      <div style="color:#79b8ff;font-size:.75rem;font-weight:600;letter-spacing:.08em;
+                  text-transform:uppercase;margin-bottom:.8rem">{t("exec_summary_heading")} — {analysis.framework_name}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem">
+        <div>
+          <div style="color:#8b949e;font-size:.72rem;margin-bottom:.2rem">{t("exec_summary_score")}</div>
+          <div style="font-size:1.8rem;font-weight:700;color:{_es_score_col};line-height:1">{score}<span style="font-size:.9rem;color:#8b949e">/100</span></div>
+        </div>
+        <div>
+          <div style="color:#8b949e;font-size:.72rem;margin-bottom:.2rem">{t("exec_summary_maturity")}</div>
+          <div style="font-size:.95rem;font-weight:600;color:{_es_m_col}">{t(_es_m_key)}</div>
+        </div>
+        <div>
+          <div style="color:#8b949e;font-size:.72rem;margin-bottom:.2rem">{t("exec_summary_critical")}</div>
+          <div style="font-size:.95rem;font-weight:600">
+            <span style="color:#f85149">{_nc_high} High</span>
+            &nbsp;·&nbsp;<span style="color:#d29922">{_nc_med} Med</span>
+            &nbsp;·&nbsp;<span style="color:#3fb950">{_compliant_ct} OK</span>
+          </div>
+        </div>
+        <div>
+          <div style="color:#8b949e;font-size:.72rem;margin-bottom:.2rem">{t("exec_summary_top_action")}</div>
+          <div style="font-size:.82rem;color:#c9d1d9;line-height:1.4">{_top_action}</div>
+        </div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     # ── Score banner ──────────────────────────────────────────────────────────────
-    score = analysis.overall_score
     if score >= 75:
         label, colour = t("score_good"), "#3fb950"
     elif score >= 50:
@@ -676,6 +725,31 @@ def render_results(analysis: ComplianceAnalysis):
         st.subheader(t("priority_actions"))
         for i, action in enumerate(analysis.priority_actions, 1):
             st.markdown(f"{i}. {action}")
+
+    # ── Remediation roadmap ───────────────────────────────────────────────────────
+    actions = analysis.priority_actions
+    if actions:
+        st.subheader(t("roadmap_heading"))
+        phases = [
+            (t("roadmap_phase1"), t("roadmap_phase1_label"), "#3fb950", actions[:2]),
+            (t("roadmap_phase2"), t("roadmap_phase2_label"), "#d29922", actions[2:4]),
+            (t("roadmap_phase3"), t("roadmap_phase3_label"), "#58a6ff", actions[4:]),
+        ]
+        rm_cols = st.columns(3)
+        for col, (phase, phase_label, ph_col, phase_actions) in zip(rm_cols, phases):
+            items_html = "".join(
+                f'<li style="margin-bottom:.4rem;color:#c9d1d9;font-size:.82rem">{a}</li>'
+                for a in phase_actions
+            ) if phase_actions else f'<li style="color:#57606a;font-size:.82rem">—</li>'
+            col.markdown(
+                f'<div style="background:#161b22;border:1px solid #30363d;border-top:3px solid {ph_col};'
+                f'border-radius:8px;padding:.9rem 1rem;height:100%">'
+                f'<div style="color:{ph_col};font-size:.7rem;font-weight:700;letter-spacing:.06em;'
+                f'text-transform:uppercase;margin-bottom:.1rem">{phase}</div>'
+                f'<div style="color:#8b949e;font-size:.72rem;margin-bottom:.6rem">{phase_label}</div>'
+                f'<ul style="margin:0;padding-left:1rem">{items_html}</ul></div>',
+                unsafe_allow_html=True,
+            )
 
     st.divider()
 

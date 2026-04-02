@@ -41,6 +41,22 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "radar_title":              "Compliance-poäng per ramverk",
         # ── Donut chart ──────────────────────────────────────────────────────────
         "donut_title":              "Fördelning av krav",
+        # ── Executive summary ─────────────────────────────────────────────────────
+        "exec_summary_heading":     "Sammanfattning",
+        "exec_summary_framework":   "Ramverk",
+        "exec_summary_score":       "Poäng",
+        "exec_summary_maturity":    "Mognadsnivå",
+        "exec_summary_critical":    "Kritiska fynd",
+        "exec_summary_top_action":  "Högsta prioritet",
+        "exec_summary_findings_dist": "Fynd",
+        # ── Remediation roadmap ───────────────────────────────────────────────────
+        "roadmap_heading":          "Åtgärdsplan",
+        "roadmap_phase1":           "0–30 dagar",
+        "roadmap_phase2":           "30–90 dagar",
+        "roadmap_phase3":           "90+ dagar",
+        "roadmap_phase1_label":     "Snabbvinster",
+        "roadmap_phase2_label":     "Medellång sikt",
+        "roadmap_phase3_label":     "Strategiska åtgärder",
         # ── Risk matrix ──────────────────────────────────────────────────────────
         "risk_matrix_title":        "Riskmatris — Status × Risknivå",
         # ── Maturity level ───────────────────────────────────────────────────────
@@ -196,6 +212,22 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "radar_title":              "Compliance Score per Framework",
         # ── Donut chart ──────────────────────────────────────────────────────────
         "donut_title":              "Requirements Distribution",
+        # ── Executive summary ─────────────────────────────────────────────────────
+        "exec_summary_heading":     "Executive Summary",
+        "exec_summary_framework":   "Framework",
+        "exec_summary_score":       "Score",
+        "exec_summary_maturity":    "Maturity Level",
+        "exec_summary_critical":    "Critical Findings",
+        "exec_summary_top_action":  "Top Priority",
+        "exec_summary_findings_dist": "Findings",
+        # ── Remediation roadmap ───────────────────────────────────────────────────
+        "roadmap_heading":          "Remediation Roadmap",
+        "roadmap_phase1":           "0–30 Days",
+        "roadmap_phase2":           "30–90 Days",
+        "roadmap_phase3":           "90+ Days",
+        "roadmap_phase1_label":     "Quick Wins",
+        "roadmap_phase2_label":     "Medium-term",
+        "roadmap_phase3_label":     "Strategic",
         # ── Risk matrix ──────────────────────────────────────────────────────────
         "risk_matrix_title":        "Risk Matrix — Status × Risk Level",
         # ── Maturity level ───────────────────────────────────────────────────────
