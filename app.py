@@ -395,44 +395,14 @@ def run_analysis(document_text: str, framework: str):
         st.stop()
 
     if framework == "All Frameworks":
+        # Kick off the step-by-step state machine (one framework per rerun)
         frameworks = list(FRAMEWORK_FILES.keys())
-        analyses: dict[str, ComplianceAnalysis] = {}
-        errors: dict[str, str] = {}
-
-        progress_bar = st.progress(0)
-        status_msg   = st.empty()
-
-        token_counter = st.empty()
-
-        def _on_token(n: int) -> None:
-            token_counter.caption(f"⚡ {n:,} tecken mottagna…")
-
-        for i, fw in enumerate(frameworks):
-            status_msg.info(t("spinner_fw", fw=fw, n=i + 1, total=len(frameworks)))
-            token_counter.caption("⏳ Väntar på svar från Claude…")
-            try:
-                analyses[fw] = analyse_document(document_text, fw, on_token=_on_token)
-            except Exception:
-                errors[fw] = traceback.format_exc()
-            token_counter.caption(f"✅ {fw} klar")
-            progress_bar.progress((i + 1) / len(frameworks))
-        token_counter.empty()
-
-        progress_bar.empty()
-        status_msg.empty()
-
-        for fw, tb in errors.items():
-            st.error(t("analysis_failed_fw", fw=fw))
-            st.code(tb)
-
-        if not analyses:
-            st.stop()
-
-        st.session_state["analyses"] = analyses
-        st.session_state.pop("analysis", None)
-        record_run(document_text)
-        st.success(t("analysis_complete_all", done=len(analyses), total=len(frameworks)))
-        render_all_results(analyses)
+        st.session_state["_fw_idx"]     = 0
+        st.session_state["_fw_results"] = {}
+        st.session_state["_fw_errors"]  = {}
+        st.session_state["_fw_doc"]     = document_text
+        st.session_state["_fw_running"] = True
+        st.rerun()
 
     else:
         with st.spinner(t("spinner_single", fw=framework)):
@@ -448,6 +418,50 @@ def run_analysis(document_text: str, framework: str):
         record_run(document_text)
         st.success(t("analysis_complete"))
         render_results(analysis)
+
+
+def step_fw_analysis() -> None:
+    """Run one framework from the session-state queue, then rerun or finish."""
+    frameworks = list(FRAMEWORK_FILES.keys())
+    idx     = st.session_state["_fw_idx"]
+    results = st.session_state["_fw_results"]
+    errors  = st.session_state["_fw_errors"]
+    doc     = st.session_state["_fw_doc"]
+    total   = len(frameworks)
+
+    if idx < total:
+        fw = frameworks[idx]
+        st.progress(idx / total)
+        st.info(t("spinner_fw", fw=fw, n=idx + 1, total=total))
+        token_counter = st.empty()
+        token_counter.caption("⏳ Väntar på svar från Claude…")
+
+        def _on_token(n: int) -> None:
+            token_counter.caption(f"⚡ {n:,} tecken mottagna…")
+
+        try:
+            results[fw] = analyse_document(doc, fw, on_token=_on_token)
+        except Exception:
+            errors[fw] = traceback.format_exc()
+
+        st.session_state["_fw_idx"]     = idx + 1
+        st.session_state["_fw_results"] = results
+        st.session_state["_fw_errors"]  = errors
+        st.rerun()
+
+    else:
+        # All frameworks done
+        st.session_state["_fw_running"] = False
+        for fw, tb in errors.items():
+            st.error(t("analysis_failed_fw", fw=fw))
+            st.code(tb)
+        if not results:
+            st.stop()
+        st.session_state["analyses"] = results
+        st.session_state.pop("analysis", None)
+        record_run(doc)
+        st.success(t("analysis_complete_all", done=len(results), total=total))
+        render_all_results(results)
 
 
 def render_all_results(analyses: dict):
@@ -784,7 +798,9 @@ else:
             t("analyse_btn"), type="primary", use_container_width=True
         )
 
-    if analyse_btn:
+    if st.session_state.get("_fw_running"):
+        step_fw_analysis()
+    elif analyse_btn:
         if not data_consent:
             st.error(t("data_consent_required"))
         else:
