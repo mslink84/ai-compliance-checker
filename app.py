@@ -10,7 +10,6 @@ Swedish is the default UI language; switch via the flag button at the top.
 
 from __future__ import annotations
 
-import io
 import os
 import traceback
 
@@ -404,11 +403,13 @@ def run_analysis(document_text: str, framework: str):
         status_msg   = st.empty()
 
         token_counter = st.empty()
+
+        def _on_token(n: int) -> None:
+            token_counter.caption(f"⚡ {n:,} tecken mottagna…")
+
         for i, fw in enumerate(frameworks):
             status_msg.info(t("spinner_fw", fw=fw, n=i + 1, total=len(frameworks)))
             token_counter.caption("⏳ Väntar på svar från Claude…")
-            def _on_token(n: int, _msg=token_counter) -> None:
-                _msg.caption(f"⚡ {n:,} tecken mottagna…")
             try:
                 analyses[fw] = analyse_document(document_text, fw, on_token=_on_token)
             except Exception:

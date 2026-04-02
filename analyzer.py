@@ -174,7 +174,8 @@ def _call_claude(
 
     # Strip markdown code fences if the model added them despite instructions
     if raw.startswith("```"):
-        raw = raw.split("\n", 1)[1]
+        parts = raw.split("\n", 1)
+        raw = parts[1] if len(parts) > 1 else ""
         raw = raw.rsplit("```", 1)[0].strip()
 
     try:
@@ -221,7 +222,7 @@ def _split_into_chunks(text: str) -> list[str]:
 
 
 # Status/risk priorities for merging (higher = more evidence of compliance)
-_STATUS_PRIORITY = {"Compliant": 3, "Partial": 2, "Not Applicable": 1, "Non-compliant": 0}
+_STATUS_PRIORITY = {"Compliant": 3, "Partial": 2, "Non-compliant": 1, "Not Applicable": 0}
 _RISK_PRIORITY   = {"High": 3, "Medium": 2, "Low": 1, "N/A": 0}
 
 
