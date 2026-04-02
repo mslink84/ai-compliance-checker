@@ -760,6 +760,7 @@ else:
     if st.session_state.get("_file_key") != file_key:
         st.session_state.pop("analysis", None)
         st.session_state.pop("analyses", None)
+        st.session_state["_fw_running"] = False
         st.session_state["_file_key"] = file_key
 
     # Read file bytes once and pass to cached extractor
