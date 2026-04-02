@@ -551,6 +551,45 @@ def render_results(analysis: ComplianceAnalysis):
     c3.metric(t("metric_partial"), partial)
     c4.metric(t("metric_non_compliant"), non_compliant)
 
+    # ── Donut chart ───────────────────────────────────────────────────────────────
+    not_applicable = sum(1 for f in analysis.findings if f.status == "Not Applicable")
+    donut = go.Figure(go.Pie(
+        labels=["Compliant", "Partial", "Non-compliant", "N/A"],
+        values=[compliant, partial, non_compliant, not_applicable],
+        hole=0.6,
+        marker=dict(colors=["#3fb950", "#d29922", "#f85149", "#57606a"]),
+        textinfo="percent+label",
+        textfont=dict(color="#c9d1d9", size=12),
+        hovertemplate="%{label}: %{value} (%{percent})<extra></extra>",
+    ))
+    donut.update_layout(
+        paper_bgcolor="#0d1117", plot_bgcolor="#0d1117",
+        font=dict(color="#c9d1d9"),
+        title=dict(text=t("donut_title"), font=dict(color="#79b8ff", size=13)),
+        showlegend=False,
+        margin=dict(l=10, r=10, t=40, b=10),
+        height=260,
+        annotations=[dict(
+            text=f"<b>{score}</b><br>/100",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=18, color="#c9d1d9"),
+        )],
+    )
+    st.plotly_chart(donut, use_container_width=True)
+
+    # ── Critical findings callout ─────────────────────────────────────────────────
+    critical = [f for f in analysis.findings
+                if f.status == "Non-compliant" and f.risk_level == "High"]
+    st.markdown(f"**{t('critical_heading')}**")
+    if not critical:
+        st.success(t("critical_empty"))
+    else:
+        for f in critical:
+            st.error(
+                f"**[{f.requirement_id}] {f.requirement_name}**  \n"
+                f"{f.recommendation}"
+            )
+
     # ── Document summary ──────────────────────────────────────────────────────────
     with st.expander(t("doc_summary"), expanded=True):
         st.write(analysis.document_summary)
@@ -612,20 +651,48 @@ def render_results(analysis: ComplianceAnalysis):
                     st.markdown(t("recommendation_col"))
                     st.write(finding.recommendation)
 
-    # ── PDF export ────────────────────────────────────────────────────────────────
+    # ── Export ────────────────────────────────────────────────────────────────────
     st.divider()
     st.subheader(t("export_heading"))
 
-    if st.button(t("pdf_btn"), type="secondary", key=f"pdf_{analysis.framework_name}"):
-        with st.spinner(t("pdf_spinner")):
-            pdf_bytes = generate_pdf(analysis)
-        filename = f"compliance_report_{analysis.framework_name.replace(' ', '_').lower()}.pdf"
+    col_pdf, col_csv = st.columns(2)
+    with col_pdf:
+        if st.button(t("pdf_btn"), type="secondary", key=f"pdf_{analysis.framework_name}",
+                     use_container_width=True):
+            with st.spinner(t("pdf_spinner")):
+                pdf_bytes = generate_pdf(analysis)
+            filename = f"compliance_report_{analysis.framework_name.replace(' ', '_').lower()}.pdf"
+            st.download_button(
+                label=t("pdf_download"),
+                data=pdf_bytes,
+                file_name=filename,
+                mime="application/pdf",
+                key=f"dl_{analysis.framework_name}",
+                use_container_width=True,
+            )
+    with col_csv:
+        lines = ["ID,Requirement,Status,Risk,Confidence,Finding,Recommendation"]
+        for f in analysis.findings:
+            def _esc(s: str) -> str:
+                return '"' + s.replace('"', '""') + '"'
+            lines.append(",".join([
+                _esc(f.requirement_id),
+                _esc(f.requirement_name),
+                _esc(f.status),
+                _esc(f.risk_level),
+                str(getattr(f, "confidence", "")),
+                _esc(f.finding),
+                _esc(f.recommendation),
+            ]))
+        csv_bytes = "\n".join(lines).encode()
+        csv_name = f"compliance_{analysis.framework_name.replace(' ', '_').lower()}.csv"
         st.download_button(
-            label=t("pdf_download"),
-            data=pdf_bytes,
-            file_name=filename,
-            mime="application/pdf",
-            key=f"dl_{analysis.framework_name}",
+            label=t("csv_btn"),
+            data=csv_bytes,
+            file_name=csv_name,
+            mime="text/csv",
+            key=f"csv_{analysis.framework_name}",
+            use_container_width=True,
         )
 
 

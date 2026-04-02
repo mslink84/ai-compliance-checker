@@ -38,7 +38,15 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "demo_finding_label":   "Fynd",
         "demo_rec_label":       "Rekommendation",
         # ── Radar chart ──────────────────────────────────────────────────────────
-        "radar_title":          "Compliance-poäng per ramverk",
+        "radar_title":              "Compliance-poäng per ramverk",
+        # ── Donut chart ──────────────────────────────────────────────────────────
+        "donut_title":              "Fördelning av krav",
+        # ── Critical findings ────────────────────────────────────────────────────
+        "critical_heading":         "🚨 Kritiska fynd — Hög risk · Ej uppfylld",
+        "critical_empty":           "Inga kritiska fynd identifierade.",
+        # ── CSV export ───────────────────────────────────────────────────────────
+        "csv_btn":                  "Exportera CSV",
+        "csv_download":             "Ladda ner rapport (.csv)",
 
         # ── GDPR data processing notice ───────────────────────────────────────────
         "data_notice_heading":  "ℹ️ Databehandling",
@@ -171,7 +179,15 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "demo_finding_label":   "Finding",
         "demo_rec_label":       "Recommendation",
         # ── Radar chart ──────────────────────────────────────────────────────────
-        "radar_title":          "Compliance Score per Framework",
+        "radar_title":              "Compliance Score per Framework",
+        # ── Donut chart ──────────────────────────────────────────────────────────
+        "donut_title":              "Requirements Distribution",
+        # ── Critical findings ────────────────────────────────────────────────────
+        "critical_heading":         "🚨 Critical Findings — High Risk · Non-compliant",
+        "critical_empty":           "No critical findings identified.",
+        # ── CSV export ───────────────────────────────────────────────────────────
+        "csv_btn":                  "Export CSV",
+        "csv_download":             "Download report (.csv)",
 
         # ── GDPR data processing notice ───────────────────────────────────────────
         "data_notice_heading":  "ℹ️ Data processing",
