@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
+from collections.abc import Callable
 from typing import Literal
 
 import anthropic
@@ -74,6 +75,7 @@ def load_framework(framework_name: str) -> dict:
 def analyse_document(
     document_text: str,
     framework_name: str,
+    on_token: Callable[[int], None] | None = None,
 ) -> ComplianceAnalysis:
     """
     Analyse document_text against framework_name using Claude.
@@ -99,9 +101,9 @@ def analyse_document(
             "Document length %d chars exceeds limit %d – using chunked analysis.",
             len(document_text), MAX_DOC_CHARS,
         )
-        analysis = _analyse_chunked(document_text, framework, framework_name, requirements_text)
+        analysis = _analyse_chunked(document_text, framework, framework_name, requirements_text, on_token)
     else:
-        analysis = _call_claude(document_text, framework, framework_name, requirements_text)
+        analysis = _call_claude(document_text, framework, framework_name, requirements_text, on_token)
 
     analysis.truncated = truncated
     return analysis
@@ -114,6 +116,7 @@ def _call_claude(
     framework: dict,
     framework_name: str,
     requirements_text: str,
+    on_token: Callable[[int], None] | None = None,
 ) -> ComplianceAnalysis:
     system_prompt = _build_system_prompt(framework, framework_name, requirements_text)
     user_message = (
@@ -134,7 +137,16 @@ def _call_claude(
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
         ) as stream:
-            raw = stream.get_final_text()
+            parts: list[str] = []
+            char_count = 0
+            for chunk in stream.text_stream:
+                parts.append(chunk)
+                char_count += len(chunk)
+                if on_token and char_count % 200 == 0:
+                    on_token(char_count)
+            if on_token:
+                on_token(char_count)
+            raw = "".join(parts)
     except anthropic.AuthenticationError as exc:
         raise RuntimeError(
             "Invalid API key. Check your ANTHROPIC_API_KEY environment variable."
@@ -182,6 +194,7 @@ def _analyse_chunked(
     framework: dict,
     framework_name: str,
     requirements_text: str,
+    on_token: Callable[[int], None] | None = None,
 ) -> ComplianceAnalysis:
     chunks = _split_into_chunks(document_text)
     logger.info("Analysing %d chunks for %s.", len(chunks), framework_name)
@@ -189,7 +202,7 @@ def _analyse_chunked(
     results: list[ComplianceAnalysis] = []
     for i, chunk in enumerate(chunks, 1):
         labelled = f"[Document section {i}/{len(chunks)}]\n\n{chunk}"
-        result = _call_claude(labelled, framework, framework_name, requirements_text)
+        result = _call_claude(labelled, framework, framework_name, requirements_text, on_token)
         results.append(result)
 
     return _merge_analyses(results, framework_name)

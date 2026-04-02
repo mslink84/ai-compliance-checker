@@ -403,13 +403,19 @@ def run_analysis(document_text: str, framework: str):
         progress_bar = st.progress(0)
         status_msg   = st.empty()
 
+        token_counter = st.empty()
         for i, fw in enumerate(frameworks):
             status_msg.info(t("spinner_fw", fw=fw, n=i + 1, total=len(frameworks)))
+            token_counter.caption("⏳ Väntar på svar från Claude…")
+            def _on_token(n: int, _msg=token_counter) -> None:
+                _msg.caption(f"⚡ {n:,} tecken mottagna…")
             try:
-                analyses[fw] = analyse_document(document_text, fw)
+                analyses[fw] = analyse_document(document_text, fw, on_token=_on_token)
             except Exception:
                 errors[fw] = traceback.format_exc()
+            token_counter.caption(f"✅ {fw} klar")
             progress_bar.progress((i + 1) / len(frameworks))
+        token_counter.empty()
 
         progress_bar.empty()
         status_msg.empty()
