@@ -13,16 +13,18 @@ from __future__ import annotations
 import os
 import traceback
 
+import plotly.graph_objects as go
 import streamlit as st
 
 from analyzer import FRAMEWORK_FILES, MAX_DOC_CHARS, ComplianceAnalysis, analyse_document
+from config import MAX_FILE_SIZE_MB
+from demo_data import DEMO_FINDINGS, DEMO_SCORE
 from guard import check_request, record_run, require_access_code
 from report_generator import generate_pdf
 from translations import t
 
 # ── Constants ────────────────────────────────────────────────────────────────────
 
-MAX_FILE_SIZE_MB = 10
 
 # ── CSS injection ─────────────────────────────────────────────────────────────────
 
@@ -465,7 +467,46 @@ def step_fw_analysis() -> None:
 
 
 def render_all_results(analyses: dict):
-    """Render results for multiple frameworks in tabs."""
+    """Render results for multiple frameworks in tabs, preceded by a radar chart."""
+    # ── Radar chart ───────────────────────────────────────────────────────────────
+    if len(analyses) > 1:
+        labels = list(analyses.keys())
+        scores = [a.overall_score for a in analyses.values()]
+        # Close the polygon
+        labels_closed = labels + [labels[0]]
+        scores_closed = scores + [scores[0]]
+
+        fig = go.Figure(go.Scatterpolar(
+            r=scores_closed,
+            theta=labels_closed,
+            fill="toself",
+            fillcolor="rgba(74,127,212,0.25)",
+            line=dict(color="#4a7fd4", width=2),
+            marker=dict(size=7, color="#79b8ff"),
+            hovertemplate="%{theta}: %{r}/100<extra></extra>",
+        ))
+        fig.update_layout(
+            polar=dict(
+                bgcolor="#161b22",
+                radialaxis=dict(
+                    visible=True, range=[0, 100],
+                    tickfont=dict(color="#8b949e", size=10),
+                    gridcolor="#30363d", linecolor="#30363d",
+                ),
+                angularaxis=dict(
+                    tickfont=dict(color="#c9d1d9", size=12),
+                    gridcolor="#30363d", linecolor="#30363d",
+                ),
+            ),
+            paper_bgcolor="#0d1117",
+            font=dict(color="#c9d1d9"),
+            title=dict(text=t("radar_title"), font=dict(color="#79b8ff", size=14)),
+            margin=dict(l=60, r=60, t=60, b=40),
+            height=380,
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+    # ── Per-framework tabs ────────────────────────────────────────────────────────
     tabs = st.tabs(list(analyses.keys()))
     for tab, (fw_name, analysis) in zip(tabs, analyses.items()):
         with tab:
@@ -622,6 +663,53 @@ def render_public_landing():
         <div class="feature-card"><h4>🇺🇸 NIST CSF 2.0</h4><p>{t("fw_nist_desc")}</p></div>
         <div class="feature-card"><h4>🛡️ SOC 2 (TSC 2017)</h4><p>{t("fw_soc2_desc")}</p></div>
         """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # ── Demo output section ───────────────────────────────────────────────────────
+    st.markdown(t("demo_heading"))
+    st.caption(t("demo_subtext"))
+
+    status_colors = {
+        "Compliant":     ("#1a7f37", "#dcffe4", t("demo_badge_compliant")),
+        "Partial":       ("#9a6700", "#fff8c5", t("demo_badge_partial")),
+        "Non-compliant": ("#cf222e", "#ffebe9", t("demo_badge_noncompliant")),
+    }
+
+    col_score, col_findings = st.columns([1, 2])
+    with col_score:
+        st.markdown(f"**{t('demo_score_label')}**")
+        st.markdown(f"""
+        <div style="text-align:center;padding:1.5rem;background:#1c2128;border:1px solid #30363d;
+                    border-radius:12px;margin-bottom:.5rem">
+            <div style="font-size:3rem;font-weight:700;
+                        background:linear-gradient(90deg,#79b8ff,#4a7fd4);
+                        -webkit-background-clip:text;-webkit-text-fill-color:transparent">
+                {DEMO_SCORE}
+            </div>
+            <div style="color:#8b949e;font-size:.85rem">/ 100 — GDPR</div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.progress(DEMO_SCORE / 100)
+
+    with col_findings:
+        st.markdown(f"**{t('demo_findings_label')}**")
+        for f in DEMO_FINDINGS:
+            bg, fg, badge = status_colors.get(f["status"], ("#30363d", "#c9d1d9", f["status"]))
+            risk_color = {"High": "#cf222e", "Medium": "#9a6700", "Low": "#1a7f37", "N/A": "#57606a"}.get(f["risk_level"], "#57606a")
+            with st.expander(
+                f"{badge}  [{f['id']}] {f['name']}",
+                expanded=(f["status"] == "Non-compliant"),
+            ):
+                st.markdown(f"**{t('demo_finding_label')}:** {f['finding']}")
+                st.markdown(f"**{t('demo_rec_label')}:** {f['recommendation']}")
+                st.markdown(
+                    f"<span style='color:{risk_color};font-size:.8rem'>"
+                    f"⬤ {t('demo_risk_label')}: {f['risk_level']}</span>&nbsp;&nbsp;"
+                    f"<span style='color:#57606a;font-size:.8rem'>"
+                    f"{t('demo_confidence_label')}: {f['confidence']}%</span>",
+                    unsafe_allow_html=True,
+                )
 
     st.divider()
 

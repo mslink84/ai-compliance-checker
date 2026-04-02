@@ -25,6 +25,21 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "public_gate_heading":  "#### 🔐 Skyddad demo",
         "public_gate_text":     "Appen kräver en åtkomstkod. Kontakta Mikael Sundberg via [www.msun.se](https://www.msun.se) för att begära åtkomst.",
 
+        # ── Demo output section (public landing) ──────────────────────────────────
+        "demo_heading":         "#### 📊 Exempelutdata — GDPR-analys",
+        "demo_subtext":         "Så här ser ett riktigt analysresultat ut (exempeldata, ingen AI-anropas).",
+        "demo_score_label":     "Compliance-poäng",
+        "demo_findings_label":  "Exempelfynd",
+        "demo_badge_compliant": "✅ Uppfylld",
+        "demo_badge_partial":   "⚠️ Delvis",
+        "demo_badge_noncompliant": "❌ Ej uppfylld",
+        "demo_risk_label":      "Risk",
+        "demo_confidence_label":"Konfidans",
+        "demo_finding_label":   "Fynd",
+        "demo_rec_label":       "Rekommendation",
+        # ── Radar chart ──────────────────────────────────────────────────────────
+        "radar_title":          "Compliance-poäng per ramverk",
+
         # ── GDPR data processing notice ───────────────────────────────────────────
         "data_notice_heading":  "ℹ️ Databehandling",
         "data_notice_text":     "Ditt dokument skickas till **Anthropic Claude API** för analys. Vi lagrar **inga** dokument. Anthropic kan använda API-anrop för att förbättra sina modeller enligt deras [användningsvillkor](https://www.anthropic.com/legal/aup). Ladda inte upp dokument med känsliga personuppgifter eller affärshemligheter.",
@@ -142,6 +157,21 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "public_built_text":    "Built by **Mikael Sundberg** as a portfolio project in GRC and AI-assisted compliance analysis. Demonstrates practical understanding of GDPR, ISO 27001, NIST CSF 2.0, and SOC 2 combined with modern AI tooling.\n\n🌐 [www.msun.se](https://www.msun.se)",
         "public_gate_heading":  "#### 🔐 Access-protected demo",
         "public_gate_text":     "This app requires an access code. Contact Mikael Sundberg via [www.msun.se](https://www.msun.se) to request access.",
+
+        # ── Demo output section (public landing) ──────────────────────────────────
+        "demo_heading":         "#### 📊 Example Output — GDPR Analysis",
+        "demo_subtext":         "This is what a real analysis result looks like (sample data, no AI called).",
+        "demo_score_label":     "Compliance Score",
+        "demo_findings_label":  "Sample Findings",
+        "demo_badge_compliant": "✅ Compliant",
+        "demo_badge_partial":   "⚠️ Partial",
+        "demo_badge_noncompliant": "❌ Non-compliant",
+        "demo_risk_label":      "Risk",
+        "demo_confidence_label":"Confidence",
+        "demo_finding_label":   "Finding",
+        "demo_rec_label":       "Recommendation",
+        # ── Radar chart ──────────────────────────────────────────────────────────
+        "radar_title":          "Compliance Score per Framework",
 
         # ── GDPR data processing notice ───────────────────────────────────────────
         "data_notice_heading":  "ℹ️ Data processing",

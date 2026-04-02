@@ -14,12 +14,13 @@ from typing import Literal
 import anthropic
 from pydantic import BaseModel, Field
 
+from config import MAX_DOC_CHARS, OVERLAP_CHARS, CLAUDE_MODEL, MAX_OUTPUT_TOKENS, API_TIMEOUT_S
+
 logger = logging.getLogger(__name__)
 
 # ── Constants ────────────────────────────────────────────────────────────────────
-
-MAX_DOC_CHARS = 14_000   # ~3 500 tokens – leaves room for prompts and full output
-OVERLAP_CHARS = 400      # overlap between chunks to avoid cutting mid-sentence
+# Imported from config.py — kept as module-level names for backward compatibility.
+__all__ = ["MAX_DOC_CHARS"]
 
 
 # ── Pydantic models ───────────────────────────────────────────────────────────────
@@ -126,14 +127,12 @@ def _call_claude(
         "Respond with ONLY valid JSON – no markdown fences, no explanation."
     )
 
-    # timeout=60 s applies to connection + first byte; streaming keeps the link
-    # alive for the full response so large frameworks (ISO 27001, NIST) don't drop.
-    client = anthropic.Anthropic(timeout=60.0)
+    client = anthropic.Anthropic(timeout=API_TIMEOUT_S)
 
     try:
         with client.messages.stream(
-            model="claude-sonnet-4-6",
-            max_tokens=8000,
+            model=CLAUDE_MODEL,
+            max_tokens=MAX_OUTPUT_TOKENS,
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
         ) as stream:

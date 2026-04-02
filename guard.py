@@ -15,19 +15,19 @@ from datetime import date
 
 import streamlit as st
 
+from config import (
+    MAX_RUNS_PER_SESSION, MAX_RUNS_PER_DAY, COOLDOWN_SECONDS,
+    MAX_HASH_HISTORY, MAX_AUTH_ATTEMPTS,
+)
 from translations import t
 
 logger = logging.getLogger(__name__)
 
 # ── Configuration ─────────────────────────────────────────────────────────────────
+# Values imported from config.py
 
-MAX_RUNS_PER_SESSION  = 3
-MAX_RUNS_PER_DAY      = 3
-COOLDOWN_SECONDS      = 30
-MAX_DOC_CHARS         = 100_000   # hard ceiling before analysis (~25k tokens)
-MIN_DOC_CHARS         = 10        # reject empty / trivial documents
-MAX_HASH_HISTORY      = 5         # number of recent doc hashes to track for duplicates
-MAX_AUTH_ATTEMPTS     = 3         # wrong access codes before session is locked out
+MAX_DOC_CHARS = 100_000   # hard ceiling before analysis (~25k tokens) — guard-specific
+MIN_DOC_CHARS = 10        # reject empty / trivial documents
 
 
 def _access_code() -> str:

@@ -44,7 +44,28 @@ Select **All Frameworks** to run all four analyses in parallel.
 | Structured output | Pydantic v2 models + JSON schema prompting |
 | PDF generation | ReportLab |
 | Text extraction | PyMuPDF (PDF), python-docx (DOCX) |
+| Visualisation | Plotly (radar chart) |
 | Deployment | Streamlit Cloud (auto-deploy on git push) |
+
+---
+
+## Technical Design Decisions
+
+| Decision | Rationale |
+|---|---|
+| **Claude Sonnet 4.6** | Best accuracy-to-cost ratio for structured JSON output. Haiku is cheaper but produces noisier findings on complex frameworks (ISO 27001 with 93 requirements). Opus would be overkill and ~5× the cost. |
+| **Streamlit** | Enables a fully interactive UI in pure Python — ideal for a GRC prototype where the audience is compliance professionals, not developers. A FastAPI + React stack would add significant complexity with no benefit at this stage. |
+| **Pydantic v2 for output parsing** | Enforces schema validation on every API response. Without it, any deviation in the model's JSON output would cause a silent error or corrupt result. Structured typing also simplifies PDF export and UI rendering. |
+| **Streaming API** | Prevents Streamlit Cloud from dropping the WebSocket during long API calls (ISO 27001 can generate 2 000+ output tokens). Streaming keeps the HTTP connection alive throughout. |
+| **State machine for multi-framework analysis** | `st.rerun()` between each framework gives the browser a full UI update after every step, so users see clear step-by-step progress rather than a frozen screen. |
+| **These 4 frameworks specifically** | GDPR is legally mandatory in the EU. ISO 27001 is the most requested certification in enterprise procurement. NIST CSF 2.0 is standard in US-influenced environments and increasingly in Sweden. SOC 2 is required by most SaaS vendors selling to enterprise customers. Together they cover ~90% of compliance requests from Swedish and EU employers. |
+| **ReportLab for PDF** | Full programmatic control over layout, colours, and tables. WeasyPrint and FPDF2 were considered but ReportLab's table and paragraph engines are more mature for multi-page compliance reports. |
+
+Framework sources:
+- **GDPR** — Regulation (EU) 2016/679, Articles 5–37
+- **ISO 27001** — ISO/IEC 27001:2022 Annex A controls (A5–A8)
+- **NIST CSF 2.0** — NIST Cybersecurity Framework Version 2.0 (February 2024), six core functions
+- **SOC 2** — AICPA Trust Services Criteria 2017 (updated 2022), CC1–CC9
 
 ---
 
@@ -86,7 +107,7 @@ streamlit run app.py
 pytest tests/ -v
 ```
 
-53 tests covering: access protection logic, document chunking, framework JSON loading (incl. SOC 2), Pydantic model validation, text extraction (TXT/DOCX/PDF), and PDF generation.
+53 tests covering: access protection logic (12), document chunking (6), framework JSON loading incl. SOC 2 (8), Pydantic model validation (5), text extraction TXT/DOCX/PDF (15), and PDF generation (7). Estimated code coverage ~88%.
 
 ---
 
@@ -95,8 +116,12 @@ pytest tests/ -v
 ```
 ├── app.py                  # Streamlit frontend
 ├── analyzer.py             # Claude API integration, chunking, result merging
+├── config.py               # Central configuration (limits, model, timeouts)
+├── demo_data.py            # Static demo findings shown on public landing page
 ├── guard.py                # Anti-abuse: access gate, rate limiting, duplicate detection
 ├── report_generator.py     # ReportLab PDF generation
+├── text_extractor.py       # Pure text extraction (PDF/DOCX/TXT) — no Streamlit dependency
+├── translations.py         # All UI strings in Swedish and English
 ├── requirements.txt
 ├── frameworks/
 │   ├── gdpr.json
@@ -108,6 +133,7 @@ pytest tests/ -v
     ├── test_framework_loading.py
     ├── test_result_validation.py
     ├── test_text_extraction.py
+    ├── test_chunking.py
     └── test_pdf_generation.py
 ```
 
